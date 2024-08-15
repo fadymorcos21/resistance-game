@@ -1,16 +1,38 @@
 // client/src/screens/CreateGameScreen.js
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import io from "socket.io-client";
 import { Picker } from "@react-native-picker/picker";
 
-const CreateGameScreen = ({ navigation }) => {
-  const [gameName, setGameName] = useState("");
-  const [playerCount, setPlayerCount] = useState("5");
+const CreateGameScreen = ({ route, navigation }) => {
+  const { name } = route.params;
+  const [numberOfPlayers, setNumberOfPlayers] = useState("5");
+
+  const SOCKET_URL = "http://192.168.191.1:3000";
+  const socket = io(SOCKET_URL); // Use your server URL here
+  socket.on("connect", () => {
+    console.log("Connected");
+  });
+  useEffect(() => {
+    socket.on("gameCreated", (data) => {
+      console.log(`Game created successfully with ID: ${data.gameId}`);
+      navigation.navigate("GameLobby", {
+        gameId: data.gameId,
+        name,
+        numberOfPlayers,
+      });
+    });
+
+    // Clean up the effect
+    return () => {
+      socket.off("gameCreated");
+      // socket.disconnect();
+    };
+  }, []);
 
   const createGame = () => {
-    console.log("Game created:", gameName, "with", playerCount, "players");
-    // Here you would typically also connect to your backend to create the game session
-    // After creating game, navigate to a "Game Lobby" screen or similar
+    console.log(`Game created by ${name} with ${numberOfPlayers} players.`);
+    socket.emit("createGame", { creatorName: name, numberOfPlayers });
   };
 
   return (
@@ -18,9 +40,11 @@ const CreateGameScreen = ({ navigation }) => {
       <Text style={styles.title}>Select Number of Players:</Text>
       <View style={styles.pickerContainer}>
         <Picker
-          selectedValue={playerCount}
+          selectedValue={numberOfPlayers}
           style={styles.picker}
-          onValueChange={(itemValue, itemIndex) => setPlayerCount(itemValue)}
+          onValueChange={(itemValue, itemIndex) =>
+            setNumberOfPlayers(itemValue)
+          }
         >
           <Picker.Item label="5" value="5" />
           <Picker.Item label="6" value="6" />
