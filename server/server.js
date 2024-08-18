@@ -6,13 +6,9 @@ const socketIo = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 const cors = require("cors");
-app.use(cors()); // This will enable CORS for all routes and all origins by default
+app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("Hello from the server!");
-});
-
-const io = require("socket.io")(server, {
+const io = socketIo(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"],
@@ -30,43 +26,67 @@ function generateRandomString() {
   return result;
 }
 
-// Games storage
 const games = {};
 
-// Handle socket connections
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log("New client connected: " + socket.id);
 
-  // Create game event
   socket.on("createGame", ({ creatorName, numberOfPlayers }) => {
-    console.log("Something....");
     const gameId = generateRandomString();
     games[gameId] = {
       gameId,
       creatorName,
       numberOfPlayers,
-      players: [creatorName], // Add the creator as the first player
+      players: [{ name: creatorName, socketId: socket.id, isSpy: false }],
     };
 
     socket.join(gameId);
+    socket.gameId = gameId;
     console.log(`${creatorName} created game: ${gameId}`);
-    socket.emit("gameCreated", { gameId });
+    io.to(gameId).emit("gameCreated", games[gameId]); // Broadcasting to the room
+    socket.emit("gameDetails", games[gameId]); // Direct response to the creator
   });
 
-  // Join game event
   socket.on("joinGame", ({ name, gameId }) => {
     if (games[gameId]) {
-      games[gameId].players.push(name);
+      games[gameId].players.push({ name, socketId: socket.id, isSpy: false });
       socket.join(gameId);
+      socket.gameId = gameId;
       console.log(`${name} joined game: ${gameId}`);
-      io.to(gameId).emit("playerJoined", { name, gameId });
+      io.to(gameId).emit("playerJoined", games[gameId]); // Notify all in the room
+      socket.emit("gameDetails", games[gameId]); // Direct response to the joiner
+      socket.emit("gameJoined", {
+        message: "Join successful.",
+        gameId: gameId,
+      });
     } else {
-      socket.emit("error", "Game not found");
+      socket.emit("joinError", "Game not found");
+    }
+  });
+
+  socket.on("requestGameDetails", (data) => {
+    const game = games[data.gameId];
+    if (game) {
+      socket.emit("gameDetails", game);
+    } else {
+      socket.emit("error", { message: "Game not found" });
     }
   });
 
   socket.on("disconnect", () => {
-    console.log("Client disconnected");
+    console.log("Client disconnected", socket.id);
+    if (socket.gameId && games[socket.gameId]) {
+      const game = games[socket.gameId];
+      const playerIndex = game.players.findIndex(
+        (p) => p.socketId === socket.id
+      );
+      if (playerIndex !== -1) {
+        const playerName = game.players[playerIndex].name;
+        game.players.splice(playerIndex, 1);
+        console.log(`${playerName} left the game: ${socket.gameId}`);
+        io.to(socket.gameId).emit("playerLeft", games[socket.gameId]);
+      }
+    }
   });
 });
 

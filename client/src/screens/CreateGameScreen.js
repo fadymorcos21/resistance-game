@@ -5,21 +5,20 @@ import io from "socket.io-client";
 import { Picker } from "@react-native-picker/picker";
 
 const CreateGameScreen = ({ route, navigation }) => {
-  const { name } = route.params;
+  const { name, socket } = route.params;
   const [numberOfPlayers, setNumberOfPlayers] = useState("5");
-
-  const SOCKET_URL = "http://192.168.191.1:3000";
-  const socket = io(SOCKET_URL); // Use your server URL here
-  socket.on("connect", () => {
-    console.log("Connected");
-  });
+  // console.log(socket.Id);
+  // const SOCKET_URL = "http://192.168.191.1:3000";
+  // const socket = io(SOCKET_URL); // Use your server URL here
+  // socket.on("connect", () => {
+  //   console.log("Connected");
+  // });
   useEffect(() => {
     socket.on("gameCreated", (data) => {
       console.log(`Game created successfully with ID: ${data.gameId}`);
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
-        name,
-        numberOfPlayers,
+        socket,
       });
     });
 

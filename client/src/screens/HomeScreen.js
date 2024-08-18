@@ -3,20 +3,19 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import io from "socket.io-client";
 
-const newSocket = io("http://192.168.191.1:3000");
+const socket = io("http://192.168.191.1:3000");
 console.log("EFFECT IS");
-newSocket.on("connect", () => {
+socket.on("connect", () => {
   console.log("Connected to server");
+  console.log(socket.id);
 });
 
-newSocket.on("connect_error", (error) => {
+socket.on("connect_error", (error) => {
   console.error("Connection error:", error);
 });
 
 const HomeScreen = ({ navigation }) => {
   const [name, setName] = useState("");
-  const [socket, setSocket] = useState(null);
-  const [isConnected, setIsConnected] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -47,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
         onPress={() => {
           // Placeholder for joining a game
           console.log("Joining a game...");
-          navigation.navigate("JoinGame", { name });
+          navigation.navigate("JoinGame", { name, socket });
         }}
       />
     </View>
