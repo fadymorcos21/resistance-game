@@ -79,6 +79,7 @@ io.on("connection", (socket) => {
       numberOfPlayers,
       roundNum: 1,
       players: [{ name: creatorName, socketId: socket.id, role: null }],
+      roundLeader: null,
       roundApproves: [],
       currentMissionCrew: [],
     };
@@ -118,11 +119,23 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("updateGameDetails", (data) => {
+    games[data.gameId] = data.details;
+  });
+
+  socket.on("liveUpdateGameDetails", (data) => {
+    console.log("Live UPDATE OF");
+    console.log(data.gameId);
+    games[data.gameId] = data.gameDetails;
+    io.to(data.gameId).emit("missionUpdate", games[data.gameId]);
+  });
+
   socket.on("startGame", (data) => {
     const game = games[data.gameId];
     if (game) {
       game.numberOfPlayers = game.players.length;
       assignRoles(data.gameId);
+      game.roundLeader = game.players[0];
       io.to(data.gameId).emit("gameStart", { message: "Game is starting" });
     } else {
       socket.emit("error", { message: "Game not found" });

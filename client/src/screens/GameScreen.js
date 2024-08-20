@@ -11,10 +11,11 @@ import io from "socket.io-client";
 
 const GameScreen = ({ route, navigation }) => {
   const { socket, gameId } = route.params;
-  const [missionNumber, setMissionNumber] = useState(1);
+  const [missionNumber, setMissionNumber] = useState(null);
   const [missionCrew, setMissionCrew] = useState([]);
   const [approves, setApproves] = useState(["Karim"]);
   const [gameDetails, setGameDetails] = useState(null);
+  const [leaderId, setLeaderId] = useState(null);
 
   // Number of players required for each mission per game size
   const missionTeamRequirements = {
@@ -34,12 +35,36 @@ const GameScreen = ({ route, navigation }) => {
       console.log("HERE");
       console.log(details);
       setGameDetails(details);
+
+      // Set missionNumber directly from the server's roundNum
+      const missionNum = details.roundNum;
+      setMissionNumber(missionNum);
+
+      setLeaderId(details.roundLeader);
+
+      if (details.currentMissionCrew.length == 0) {
+        // Initialize missionCrew with placeholders based on mission requirements
+        const initialMissionCrew = Array(
+          missionTeamRequirements[details.numberOfPlayers][missionNumber - 1]
+        ).fill(null);
+        setMissionCrew(initialMissionCrew);
+
+        details.currentMissionCrew = initialMissionCrew;
+
+        socket.emit("updateGameDetails", { details, gameId });
+      }
     });
 
-    socket.on("missionUpdate", ({ missionNumber, votes }) => {
-      setMissionNumber(missionNumber);
-      setApproves(votes);
-    });
+    const handleLiveUpdate = (details) => {
+      console.log("Live update got back");
+      setMissionNumber(details.roundNum);
+      setApproves(details.roundApproves);
+      setLeaderId(details.roundLeader);
+      console.log(details.currentMissionCrew);
+      setMissionCrew(details.currentMissionCrew);
+    };
+
+    socket.on("missionUpdate", handleLiveUpdate);
 
     socket.on("voteReceived", ({ playerId, vote }) => {
       setApproves((prevApproves) => ({
@@ -49,14 +74,32 @@ const GameScreen = ({ route, navigation }) => {
     });
 
     return () => {
+      socket.off("gameDetails");
       socket.off("missionUpdate");
       socket.off("voteReceived");
     };
   }, []);
 
-  const handlePlayerSelection = (playerId) => {
-    setMissionCrew((prev) => [...prev, playerId]);
-    // Have to emit to surver on any change so everyone can see
+  const handlePlayerSelection = (playerId, ind) => {
+    // Update the missionCrew state first
+    setMissionCrew((prevArray) => {
+      const newArray = [...prevArray];
+      newArray[ind] = playerId;
+
+      // After updating the missionCrew state, update gameDetails
+      const updatedGameDetails = {
+        ...gameDetails,
+        currentMissionCrew: newArray,
+      };
+
+      // Emit the updated gameDetails to the server
+      socket.emit("liveUpdateGameDetails", {
+        gameDetails: updatedGameDetails,
+        gameId,
+      });
+
+      return newArray;
+    });
   };
 
   const submitSelection = () => {
@@ -65,9 +108,12 @@ const GameScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Mission</Text>
+      {missionNumber && (
+        <Text style={styles.header}>Mission {missionNumber}</Text>
+      )}
       <ScrollView style={styles.selectionArea}>
-        {gameDetails &&
+        {missionNumber &&
+          gameDetails &&
           Array.from({
             length:
               missionTeamRequirements[gameDetails.numberOfPlayers][
@@ -75,12 +121,15 @@ const GameScreen = ({ route, navigation }) => {
               ],
           }).map((_, index) => (
             <Picker
-              selectedValue={"Fady"}
+              selectedValue={missionCrew[index]}
               style={styles.picker}
-              // onValueChange={(itemValue) => handlePlayerSelection(player.id)}
-              // enabled={socket.id === leaderId} // Only enable if this client is the leader
+              onValueChange={(itemValue) =>
+                handlePlayerSelection(itemValue, index)
+              }
               key={index}
+              // enabled={socket.id === leaderId} // Only enable if this client is the leader
             >
+              <Picker.Item label="Select a player" value={null} />
               {gameDetails.players.map((player) => (
                 <Picker.Item label={player.name} value={player.socketId} />
               ))}
@@ -90,6 +139,7 @@ const GameScreen = ({ route, navigation }) => {
       {/* {socket.id === leaderId && (
         <Button title="Submit Selection" onPress={submitSelection} />
       )} */}
+
       <View style={styles.voteResults}>
         {Object.entries(approves).map((player) => (
           <Text>{player}</Text>
