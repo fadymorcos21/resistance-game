@@ -80,7 +80,7 @@ io.on("connection", (socket) => {
       roundNum: 1,
       players: [{ name: creatorName, socketId: socket.id, role: null }],
       roundLeader: null,
-      roundApproves: [],
+      roundApproves: ["Poop"],
       currentMissionCrew: [],
     };
 
@@ -153,6 +153,11 @@ io.on("connection", (socket) => {
     console.log(
       games[gameId].players.find((player) => player.socketId === socket.id).role
     );
+  });
+
+  socket.on("finalizeSelection", (gameId) => {
+    console.log(gameId);
+    io.to(gameId).emit("selectionFinal");
   });
 
   socket.on("disconnect", () => {
