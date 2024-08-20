@@ -17,6 +17,27 @@ socket.on("connect_error", (error) => {
 const HomeScreen = ({ navigation }) => {
   const [name, setName] = useState("");
 
+  useEffect(() => {
+    socket.on("gameCreated", (data) => {
+      console.log(`Game created successfully with ID: ${data.gameId}`);
+      navigation.navigate("GameLobby", {
+        gameId: data.gameId,
+        socket,
+      });
+    });
+
+    // Clean up the effect
+    return () => {
+      socket.off("gameCreated");
+      // socket.disconnect();
+    };
+  }, []);
+
+  const createGame = () => {
+    console.log(`Game created by ${name} with ${34} players.`);
+    const numberOfPlayers = 1;
+    socket.emit("createGame", { creatorName: name, numberOfPlayers });
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Resistance</Text>
@@ -33,14 +54,8 @@ const HomeScreen = ({ navigation }) => {
           console.log(e);
         }}
       />
-      <Button
-        title="Create Game"
-        onPress={() => {
-          // Placeholder for creating a game
-          console.log("Creating a game...");
-          navigation.navigate("CreateGame", { name, socket });
-        }}
-      />
+
+      <Button title="Create Game" onPress={() => createGame()} />
       <Button
         title="Join Game"
         onPress={() => {

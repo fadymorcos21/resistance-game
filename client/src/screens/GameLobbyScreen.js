@@ -27,6 +27,18 @@ const GameLobbyScreen = ({ route, navigation }) => {
 
     socket.on("playerLeft", handlePlayerLeft);
 
+    const startGame = () => {
+      // Check if there's enough players first
+      // Make sure to show users warning message that game needs 5 to 10 players to start
+      console.log("Starting game...");
+      navigation.navigate("Reveal", {
+        socket,
+        gameId,
+      });
+    };
+
+    socket.on("gameStart", startGame);
+
     socket.on("error", (error) => {
       console.error("Error:", error.message);
     });
@@ -48,7 +60,7 @@ const GameLobbyScreen = ({ route, navigation }) => {
       </ScrollView>
       <Button
         title="Start Game"
-        onPress={() => console.log("Starting game...")}
+        onPress={() => socket.emit("startGame", { gameId })}
       />
     </View>
   );
