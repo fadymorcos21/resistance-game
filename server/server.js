@@ -127,7 +127,7 @@ io.on("connection", (socket) => {
 
   socket.on("liveUpdateGameDetails", (data) => {
     console.log("Live UPDATE OF");
-    console.log(data.gameId);
+    console.log(data.gameDetails);
     games[data.gameId] = data.gameDetails;
     io.to(data.gameId).emit("missionUpdate", games[data.gameId]);
   });
@@ -183,6 +183,7 @@ io.on("connection", (socket) => {
       io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
     }
     games[data.gameId].roundApproves = [];
+    games[data.gameId].currentMissionCrew = [];
   });
 
   socket.on("disconnect", () => {

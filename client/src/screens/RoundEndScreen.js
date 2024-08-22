@@ -8,7 +8,7 @@ const RoundEndScreen = ({ route, navigation }) => {
     // Emit the round result to the server
     socket.emit("roundWin", { gameId, spiesWin });
 
-    socket.on("GameWinner", ({ gameWinner }) => {
+    socket.on("GameOver", ({ gameWinner }) => {
       // Navigate back to the "Game" screen after 3 seconds
       const timer = setTimeout(() => {
         if (gameWinner === "TBD") {
@@ -26,9 +26,9 @@ const RoundEndScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       {spiesWin ? (
-        <Text style={styles.revealText}>Spies Win!</Text>
+        <Text style={styles.revealText}>Spies Win the round!</Text>
       ) : (
-        <Text style={styles.revealText}>Resistance Wins!</Text>
+        <Text style={styles.revealText}>Resistance Wins the round!</Text>
       )}
     </View>
   );

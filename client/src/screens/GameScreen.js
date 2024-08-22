@@ -58,8 +58,8 @@ const GameScreen = ({ route, navigation }) => {
     const checkSpyWin = (details) => {
       var spyCount = 0;
       const numOfPlayers = details.numberOfPlayers;
-      for (let i = 0; i < numOfPlayers; i++) {
-        if (details.players[i].role === "Spy") {
+      for (let i = 0; i < details.currentMissionCrew.length; i++) {
+        if (details.currentMissionCrew[i].role === "Spy") {
           spyCount++;
         }
       }
@@ -134,10 +134,14 @@ const GameScreen = ({ route, navigation }) => {
     };
   }, []);
 
-  const handlePlayerSelection = (playerId, ind) => {
+  const handlePlayerSelection = (value, ind) => {
+    const player = JSON.parse(value);
+    console.log("THIS IS PLAYER : ");
+    console.log(player);
+
     setMissionCrew((prevArray) => {
       const newArray = [...prevArray];
-      newArray[ind] = playerId;
+      newArray[ind] = player;
 
       const updatedGameDetails = {
         ...gameDetails,
@@ -148,7 +152,7 @@ const GameScreen = ({ route, navigation }) => {
         gameDetails: updatedGameDetails,
         gameId,
       });
-
+      setGameDetails(updatedGameDetails);
       return newArray;
     });
   };
@@ -196,6 +200,23 @@ const GameScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* {gameDetails &&
+        console.log(
+          gameDetails.players.find((player) => player.socketId === socket.id)
+            .role
+        )} */}
+      {gameDetails && (
+        <View>
+          <Text>
+            {
+              gameDetails.players.find(
+                (player) => player.socketId === socket.id
+              ).role
+            }
+          </Text>
+          <Text>{name}</Text>
+        </View>
+      )}
       {missionNumber && (
         <Text style={styles.header}>Mission {missionNumber}</Text>
       )}
@@ -209,13 +230,15 @@ const GameScreen = ({ route, navigation }) => {
                 missionNumber - 1
               ],
           }).map((_, index) => {
-            const selectedPlayer = gameDetails.players.find(
-              (player) => player.socketId === missionCrew[index]
-            );
+            {
+              /* const selectedPlayer = gameDetails.players.find(
+              (player) => player.socketId === 
+            ); */
+            }
 
             return socket.id === leader?.socketId ? (
               <Picker
-                selectedValue={missionCrew[index]}
+                selectedValue={JSON.stringify(missionCrew[index])}
                 style={styles.picker}
                 onValueChange={(itemValue) =>
                   handlePlayerSelection(itemValue, index)
@@ -225,15 +248,17 @@ const GameScreen = ({ route, navigation }) => {
                 <Picker.Item label="Select a player" value={null} />
                 {gameDetails.players.map((player) => (
                   <Picker.Item
-                    key={player.socketId}
+                    key={JSON.stringify(player)}
                     label={player.name}
-                    value={player.socketId}
+                    value={JSON.stringify(player)}
                   />
                 ))}
               </Picker>
             ) : (
               <Text key={index} style={styles.text}>
-                {selectedPlayer ? selectedPlayer.name : "No selection yet"}
+                {missionCrew[index]
+                  ? missionCrew[index].name
+                  : "No selection yet"}
               </Text>
             );
           })}
