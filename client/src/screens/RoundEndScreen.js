@@ -2,11 +2,15 @@ import React, { useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 const RoundEndScreen = ({ route, navigation }) => {
-  const { socket, gameId, name, spiesWin } = route.params;
+  const { socket, gameId, name, spiesWin, numberOfSpies, leader } =
+    route.params;
 
   useEffect(() => {
     // Emit the round result to the server
-    socket.emit("roundWin", { gameId, spiesWin });
+    console.log("Revealed spies winner?: " + spiesWin);
+    if (socket.id === leader?.socketId) {
+      socket.emit("roundWin", { gameId, spiesWin });
+    }
 
     socket.on("GameOver", ({ gameWinner }) => {
       // Navigate back to the "Game" screen after 3 seconds
@@ -18,9 +22,6 @@ const RoundEndScreen = ({ route, navigation }) => {
         }
       }, 3500);
     });
-
-    // Cleanup the timeout if the component unmounts
-    return () => clearTimeout(timer);
   }, [navigation, socket, gameId, spiesWin, name]);
 
   return (

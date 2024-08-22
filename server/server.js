@@ -164,8 +164,8 @@ io.on("connection", (socket) => {
 
   socket.on("roundWin", (data) => {
     games[data.gameId].roundNum++;
-    console.log(data.gameId);
-    if (data.SpiesWin) {
+    console.log("data from roundWin (spiesWin): " + data.spiesWin);
+    if (data.spiesWin) {
       console.log("Spies Won last round");
       games[data.gameId].numberOfSpyWins++;
     } else {

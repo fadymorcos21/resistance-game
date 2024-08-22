@@ -63,6 +63,7 @@ const GameScreen = ({ route, navigation }) => {
           spyCount++;
         }
       }
+      console.log(details.roundLeader);
       if (missionNumber >= 4 && numOfPlayers >= 7 && spyCount >= 2) {
         // Spies win
         console.log("Spies Win!");
@@ -72,16 +73,19 @@ const GameScreen = ({ route, navigation }) => {
           name,
           spiesWin: true,
           numberOfSpies: spyCount,
+          leader: details.roundLeader,
         });
       } else if (spyCount > 0) {
         // Spies also win
         console.log("Spies Win!");
+
         navigation.navigate("RoundEnd", {
           socket,
           gameId,
           name,
           spiesWin: true,
           numberOfSpies: spyCount,
+          leader: details.roundLeader,
         });
       } else {
         // Spies also win
@@ -92,6 +96,7 @@ const GameScreen = ({ route, navigation }) => {
           name,
           spiesWin: false,
           numberOfSpies: 0,
+          leader: details.roundLeader,
         });
       }
     };
