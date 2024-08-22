@@ -164,7 +164,10 @@ io.on("connection", (socket) => {
 
   socket.on("roundWin", (data) => {
     games[data.gameId].roundNum++;
+    games[data.gameId].roundApproves = [];
+    games[data.gameId].currentMissionCrew = [];
     console.log("data from roundWin (spiesWin): " + data.spiesWin);
+    console.log("RoundNow : " + games[data.gameId].roundNum);
     if (data.spiesWin) {
       console.log("Spies Won last round");
       games[data.gameId].numberOfSpyWins++;
@@ -182,8 +185,6 @@ io.on("connection", (socket) => {
       console.log("Next Round!");
       io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
     }
-    games[data.gameId].roundApproves = [];
-    games[data.gameId].currentMissionCrew = [];
   });
 
   socket.on("disconnect", () => {

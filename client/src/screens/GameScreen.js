@@ -1,13 +1,7 @@
-import { platform } from "os";
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Picker,
-  ScrollView,
-  Button,
-} from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import DropDownPicker from "react-native-dropdown-picker";
+import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 
 const GameScreen = ({ route, navigation }) => {
   const { socket, gameId, name } = route.params;
@@ -18,6 +12,8 @@ const GameScreen = ({ route, navigation }) => {
   const [leader, setLeader] = useState(null);
   const [selectionFinal, setSelectionFinal] = useState(false);
   const [voted, setVoted] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState([]);
+  const [dropdownValues, setDropdownValues] = useState([]);
 
   const missionTeamRequirements = {
     5: [2, 3, 2, 3, 3],
@@ -28,121 +24,143 @@ const GameScreen = ({ route, navigation }) => {
     10: [3, 4, 4, 5, 5],
   };
 
-  useEffect(() => {
-    socket.emit("requestGameDetails", { gameId });
+  useFocusEffect(
+    useCallback(() => {
+      setMissionNumber(null);
+      setMissionCrew([]);
+      setApproves([]);
+      setGameDetails(null);
+      setLeader(null);
+      setSelectionFinal(false);
+      setVoted(false);
 
-    socket.on("gameDetails", (details) => {
-      setGameDetails(details);
+      socket.emit("requestGameDetails", { gameId });
 
-      // Set missionNumber directly from the server's roundNum
-      const missionNum = details.roundNum;
-      setMissionNumber(missionNum);
+      socket.on("gameDetails", (details) => {
+        setGameDetails(details);
 
-      // Set the leader object
-      setLeader(details.roundLeader);
+        setMissionNumber(details.roundNum);
+        setApproves(details.roundApproves);
+        setLeader(details.roundLeader);
 
-      if (details.currentMissionCrew.length === 0) {
-        const initialMissionCrew = Array(
-          missionTeamRequirements[details.numberOfPlayers][missionNum - 1]
-        ).fill(null);
-        setMissionCrew(initialMissionCrew);
+        if (details.currentMissionCrew.length === 0) {
+          const initialMissionCrew = Array(
+            missionTeamRequirements[details.numberOfPlayers][
+              details.roundNum - 1
+            ]
+          ).fill(null);
+          setMissionCrew(initialMissionCrew);
 
-        details.currentMissionCrew = initialMissionCrew;
+          details.currentMissionCrew = initialMissionCrew;
 
-        socket.emit("updateGameDetails", { details, gameId });
-      } else {
-        setMissionCrew(details.currentMissionCrew);
-      }
-    });
-
-    const checkSpyWin = (details) => {
-      var spyCount = 0;
-      const numOfPlayers = details.numberOfPlayers;
-      for (let i = 0; i < details.currentMissionCrew.length; i++) {
-        if (details.currentMissionCrew[i].role === "Spy") {
-          spyCount++;
+          socket.emit("updateGameDetails", { details, gameId });
+        } else {
+          setMissionCrew(details.currentMissionCrew);
+          setDropdownValues(
+            details.currentMissionCrew.map((player) =>
+              player ? JSON.stringify(player) : null
+            )
+          );
         }
-      }
-      console.log(details.roundLeader);
-      if (missionNumber >= 4 && numOfPlayers >= 7 && spyCount >= 2) {
-        // Spies win
-        console.log("Spies Win!");
-        navigation.navigate("RoundEnd", {
-          socket,
-          gameId,
-          name,
-          spiesWin: true,
-          numberOfSpies: spyCount,
-          leader: details.roundLeader,
-        });
-      } else if (spyCount > 0) {
-        // Spies also win
-        console.log("Spies Win!");
+      });
 
-        navigation.navigate("RoundEnd", {
-          socket,
-          gameId,
-          name,
-          spiesWin: true,
-          numberOfSpies: spyCount,
-          leader: details.roundLeader,
-        });
-      } else {
-        // Spies also win
-        console.log("Resistance Wins!");
-        navigation.navigate("RoundEnd", {
-          socket,
-          gameId,
-          name,
-          spiesWin: false,
-          numberOfSpies: 0,
-          leader: details.roundLeader,
-        });
-      }
-    };
+      const checkSpyWin = (details) => {
+        let spyCount = 0;
+        const numOfPlayers = details.numberOfPlayers;
+        for (let i = 0; i < details.currentMissionCrew.length; i++) {
+          if (details.currentMissionCrew[i].role === "Spy") {
+            spyCount++;
+          }
+        }
+        if (missionNumber >= 4 && numOfPlayers >= 7 && spyCount >= 2) {
+          navigation.navigate("RoundEnd", {
+            socket,
+            gameId,
+            name,
+            spiesWin: true,
+            numberOfSpies: spyCount,
+            leader: details.roundLeader,
+          });
+        } else if (spyCount > 0) {
+          navigation.navigate("RoundEnd", {
+            socket,
+            gameId,
+            name,
+            spiesWin: true,
+            numberOfSpies: spyCount,
+            leader: details.roundLeader,
+          });
+        } else {
+          navigation.navigate("RoundEnd", {
+            socket,
+            gameId,
+            name,
+            spiesWin: false,
+            numberOfSpies: 0,
+            leader: details.roundLeader,
+          });
+        }
+      };
 
-    const handleLiveUpdate = (details) => {
-      setGameDetails(details);
-      setMissionNumber(details.roundNum);
-      setApproves(details.roundApproves);
-      setLeader(details.roundLeader);
-      setMissionCrew(details.currentMissionCrew);
+      const handleLiveUpdate = (details) => {
+        setGameDetails(details);
+        setMissionNumber(details.roundNum);
+        setApproves(details.roundApproves);
+        setLeader(details.roundLeader);
+        setMissionCrew(details.currentMissionCrew);
+        setDropdownValues(
+          details.currentMissionCrew.map((player) =>
+            player ? JSON.stringify(player) : null
+          )
+        );
 
-      console.log("Checking if all votes are in:");
-      console.log(details.roundApproves.length);
-      console.log(details.numberOfPlayers);
-      if (details.roundApproves.length + 1 >= details.numberOfPlayers) {
-        console.log("All votes are in!");
-        checkSpyWin(details);
-      }
-    };
+        if (details.roundApproves.length + 1 >= details.numberOfPlayers) {
+          checkSpyWin(details);
+        }
+      };
 
-    const handleSelectionFinalized = (details) => {
-      setSelectionFinal(true);
-    };
+      const handleSelectionFinalized = (details) => {
+        setSelectionFinal(true);
+      };
 
-    socket.on("missionUpdate", handleLiveUpdate);
+      socket.on("missionUpdate", handleLiveUpdate);
+      socket.on("selectionFinal", handleSelectionFinalized);
+      socket.on("voteReceived", ({ playerId, vote }) => {
+        setApproves((prevApproves) => ({
+          ...prevApproves,
+          [playerId]: vote,
+        }));
+      });
 
-    socket.on("selectionFinal", handleSelectionFinalized);
+      return () => {
+        socket.off("gameDetails");
+        socket.off("missionUpdate");
+        socket.off("voteReceived");
+        socket.off("selectionFinal");
+      };
+    }, [socket, gameId, navigation])
+  );
 
-    socket.on("voteReceived", ({ playerId, vote }) => {
-      setApproves((prevApproves) => ({
-        ...prevApproves,
-        [playerId]: vote,
-      }));
-    });
-
-    return () => {
-      socket.off("gameDetails");
-      socket.off("missionUpdate");
-      socket.off("voteReceived");
-    };
-  }, []);
+  useEffect(() => {
+    if (gameDetails && missionNumber) {
+      const openArray = Array(
+        missionTeamRequirements[gameDetails.numberOfPlayers][missionNumber - 1]
+      ).fill(false);
+      const valuesArray = Array(
+        missionTeamRequirements[gameDetails.numberOfPlayers][missionNumber - 1]
+      ).fill(null);
+      setOpenDropdown(openArray);
+      setDropdownValues(valuesArray);
+    }
+  }, [gameDetails, missionNumber]);
 
   const handlePlayerSelection = (value, ind) => {
     const player = JSON.parse(value);
-    console.log("THIS IS PLAYER : ");
-    console.log(player);
+    setDropdownValues((prev) => {
+      const newValues = [...prev];
+      newValues[ind] = value;
+      return newValues;
+    });
 
     setMissionCrew((prevArray) => {
       const newArray = [...prevArray];
@@ -157,6 +175,7 @@ const GameScreen = ({ route, navigation }) => {
         gameDetails: updatedGameDetails,
         gameId,
       });
+
       setGameDetails(updatedGameDetails);
       return newArray;
     });
@@ -175,7 +194,6 @@ const GameScreen = ({ route, navigation }) => {
       player = gameDetails.players.find(
         (player) => player.socketId === socket.id
       );
-      console.log("P1");
       const newArray = [
         ...prevArray,
         {
@@ -185,19 +203,16 @@ const GameScreen = ({ route, navigation }) => {
           votedApprove: approved,
         },
       ];
-      console.log("P2");
 
       const updatedGameDetails = {
         ...gameDetails,
         roundApproves: newArray,
       };
-      console.log("P3");
 
       socket.emit("liveUpdateGameDetails", {
         gameDetails: updatedGameDetails,
         gameId,
       });
-      console.log("P4");
 
       return newArray;
     });
@@ -205,11 +220,6 @@ const GameScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* {gameDetails &&
-        console.log(
-          gameDetails.players.find((player) => player.socketId === socket.id)
-            .role
-        )} */}
       {gameDetails && (
         <View>
           <Text>
@@ -235,30 +245,42 @@ const GameScreen = ({ route, navigation }) => {
                 missionNumber - 1
               ],
           }).map((_, index) => {
-            {
-              /* const selectedPlayer = gameDetails.players.find(
-              (player) => player.socketId === 
-            ); */
-            }
+            const items = gameDetails.players.map((player) => ({
+              label: player.name,
+              value: JSON.stringify(player),
+            }));
 
             return socket.id === leader?.socketId ? (
-              <Picker
-                selectedValue={JSON.stringify(missionCrew[index])}
-                style={styles.picker}
-                onValueChange={(itemValue) =>
-                  handlePlayerSelection(itemValue, index)
-                }
+              <View
                 key={index}
+                style={{ zIndex: 1000 - index, marginBottom: 40 }}
               >
-                <Picker.Item label="Select a player" value={null} />
-                {gameDetails.players.map((player) => (
-                  <Picker.Item
-                    key={JSON.stringify(player)}
-                    label={player.name}
-                    value={JSON.stringify(player)}
-                  />
-                ))}
-              </Picker>
+                <DropDownPicker
+                  open={openDropdown[index]} // Controls whether the dropdown is open
+                  value={
+                    missionCrew[index]
+                      ? JSON.stringify(missionCrew[index])
+                      : null
+                  } // Reflect the current selection from missionCrew
+                  items={items} // List of selectable options
+                  setOpen={(open) => {
+                    setOpenDropdown((prev) =>
+                      prev.map((o, i) => (i === index ? open : o))
+                    );
+                  }}
+                  setValue={(callback) => {
+                    const selectedValue = callback(
+                      missionCrew[index]
+                        ? JSON.stringify(missionCrew[index])
+                        : null
+                    );
+                    handlePlayerSelection(selectedValue, index);
+                  }}
+                  zIndex={1000 - index}
+                  dropDownDirection="BOTTOM"
+                  avoidScrollView={true}
+                />
+              </View>
             ) : (
               <Text key={index} style={styles.text}>
                 {missionCrew[index]
@@ -272,10 +294,7 @@ const GameScreen = ({ route, navigation }) => {
         <Button
           title="Start mission"
           onPress={() => {
-            // Placeholder for joining a game
-            console.log("Launching mission");
             handleLeaderFinalized();
-            // navigation.navigate("JoinGame", { name, socket });
           }}
         />
       ) : selectionFinal && !voted ? (
@@ -283,14 +302,12 @@ const GameScreen = ({ route, navigation }) => {
           <Button
             title="Skip"
             onPress={() => {
-              console.log(socket.id + " voted skip");
               voteApprove(false);
             }}
           />
           <Button
             title="Approve"
             onPress={() => {
-              console.log(socket.id + " approved");
               voteApprove(true);
             }}
           />
@@ -300,7 +317,7 @@ const GameScreen = ({ route, navigation }) => {
       )}
       <View style={styles.voteResults}>
         {approves.map((player) => (
-          <Text>{player.name}</Text>
+          <Text key={player.socketId}>{player.name}</Text>
         ))}
       </View>
     </View>
@@ -322,10 +339,6 @@ const styles = StyleSheet.create({
   selectionArea: {
     marginBottom: 20,
   },
-  picker: {
-    width: "100%",
-    marginBottom: 10,
-  },
   text: {
     fontSize: 18,
     marginBottom: 10,
@@ -335,9 +348,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     backgroundColor: "#f0f0f0",
     width: "100%",
-  },
-  voteResults: {
-    marginTop: 20,
   },
 });
 

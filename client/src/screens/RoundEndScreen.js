@@ -1,3 +1,4 @@
+import { useFocusEffect } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
@@ -5,7 +6,7 @@ const RoundEndScreen = ({ route, navigation }) => {
   const { socket, gameId, name, spiesWin, numberOfSpies, leader } =
     route.params;
 
-  useEffect(() => {
+  useFocusEffect(() => {
     // Emit the round result to the server
     console.log("Revealed spies winner?: " + spiesWin);
     if (socket.id === leader?.socketId) {

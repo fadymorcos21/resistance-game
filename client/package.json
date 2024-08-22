@@ -11,7 +11,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~3.2.2",
     "@expo/ngrok": "^4.1.0",
-    "@react-native-picker/picker": "^2.7.5",
+    "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "@react-navigation/stack": "^6.4.1",
@@ -22,6 +22,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-native": "0.74.3",
+    "react-native-dropdown-picker": "^5.4.6",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-web": "~0.19.10",
     "socket.io-client": "^4.7.5",
