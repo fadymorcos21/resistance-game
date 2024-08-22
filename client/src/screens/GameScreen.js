@@ -1,3 +1,4 @@
+import { platform } from "os";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -9,13 +10,14 @@ import {
 } from "react-native";
 
 const GameScreen = ({ route, navigation }) => {
-  const { socket, gameId } = route.params;
+  const { socket, gameId, name } = route.params;
   const [missionNumber, setMissionNumber] = useState(null);
   const [missionCrew, setMissionCrew] = useState([]);
-  const [approves, setApproves] = useState(["Karim"]);
+  const [approves, setApproves] = useState([]);
   const [gameDetails, setGameDetails] = useState(null);
   const [leader, setLeader] = useState(null);
   const [selectionFinal, setSelectionFinal] = useState(false);
+  const [voted, setVoted] = useState(false);
 
   const missionTeamRequirements = {
     5: [2, 3, 2, 3, 3],
@@ -53,11 +55,61 @@ const GameScreen = ({ route, navigation }) => {
       }
     });
 
+    const checkSpyWin = (details) => {
+      var spyCount = 0;
+      const numOfPlayers = details.numberOfPlayers;
+      for (let i = 0; i < numOfPlayers; i++) {
+        if (details.players[i].role === "Spy") {
+          spyCount++;
+        }
+      }
+      if (missionNumber >= 4 && numOfPlayers >= 7 && spyCount >= 2) {
+        // Spies win
+        console.log("Spies Win!");
+        navigation.navigate("RoundEnd", {
+          socket,
+          gameId,
+          name,
+          spiesWin: true,
+          numberOfSpies: spyCount,
+        });
+      } else if (spyCount > 0) {
+        // Spies also win
+        console.log("Spies Win!");
+        navigation.navigate("RoundEnd", {
+          socket,
+          gameId,
+          name,
+          spiesWin: true,
+          numberOfSpies: spyCount,
+        });
+      } else {
+        // Spies also win
+        console.log("Resistance Wins!");
+        navigation.navigate("RoundEnd", {
+          socket,
+          gameId,
+          name,
+          spiesWin: false,
+          numberOfSpies: 0,
+        });
+      }
+    };
+
     const handleLiveUpdate = (details) => {
+      setGameDetails(details);
       setMissionNumber(details.roundNum);
       setApproves(details.roundApproves);
       setLeader(details.roundLeader);
       setMissionCrew(details.currentMissionCrew);
+
+      console.log("Checking if all votes are in:");
+      console.log(details.roundApproves.length);
+      console.log(details.numberOfPlayers);
+      if (details.roundApproves.length + 1 >= details.numberOfPlayers) {
+        console.log("All votes are in!");
+        checkSpyWin(details);
+      }
     };
 
     const handleSelectionFinalized = (details) => {
@@ -105,6 +157,40 @@ const GameScreen = ({ route, navigation }) => {
     setSelectionFinal(() => {
       socket.emit("finalizeSelection", gameId);
       return true;
+    });
+  };
+
+  const voteApprove = (approved) => {
+    setVoted(true);
+    setApproves((prevArray) => {
+      player = gameDetails.players.find(
+        (player) => player.socketId === socket.id
+      );
+      console.log("P1");
+      const newArray = [
+        ...prevArray,
+        {
+          name: player.name,
+          socketId: socket.id,
+          role: player.role,
+          votedApprove: approved,
+        },
+      ];
+      console.log("P2");
+
+      const updatedGameDetails = {
+        ...gameDetails,
+        roundApproves: newArray,
+      };
+      console.log("P3");
+
+      socket.emit("liveUpdateGameDetails", {
+        gameDetails: updatedGameDetails,
+        gameId,
+      });
+      console.log("P4");
+
+      return newArray;
     });
   };
 
@@ -162,20 +248,20 @@ const GameScreen = ({ route, navigation }) => {
             // navigation.navigate("JoinGame", { name, socket });
           }}
         />
-      ) : selectionFinal ? (
+      ) : selectionFinal && !voted ? (
         <View>
           <Button
             title="Skip"
             onPress={() => {
               console.log(socket.id + " voted skip");
-              // hangleVote();
+              voteApprove(false);
             }}
           />
           <Button
             title="Approve"
             onPress={() => {
               console.log(socket.id + " approved");
-              // hangleVote();
+              voteApprove(true);
             }}
           />
         </View>
@@ -184,7 +270,7 @@ const GameScreen = ({ route, navigation }) => {
       )}
       <View style={styles.voteResults}>
         {approves.map((player) => (
-          <Text>{player}</Text>
+          <Text>{player.name}</Text>
         ))}
       </View>
     </View>

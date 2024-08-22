@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import io from "socket.io-client";
 
 const GameLobbyScreen = ({ route, navigation }) => {
-  const { gameId, socket } = route.params;
+  const { gameId, socket, name } = route.params;
   const [gameDetails, setGameDetails] = useState(null);
   // const socket = io("http://192.168.191.1:3000"); // Change to your actual server address
 
@@ -34,6 +34,7 @@ const GameLobbyScreen = ({ route, navigation }) => {
       navigation.navigate("Reveal", {
         socket,
         gameId,
+        name,
       });
     };
 

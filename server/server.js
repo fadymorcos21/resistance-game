@@ -80,8 +80,10 @@ io.on("connection", (socket) => {
       roundNum: 1,
       players: [{ name: creatorName, socketId: socket.id, role: null }],
       roundLeader: null,
-      roundApproves: ["Poop"],
+      roundApproves: [],
       currentMissionCrew: [],
+      numberOfSpyWins: 0,
+      numberOfResistanceWins: 0,
     };
 
     socket.join(gameId);
@@ -158,6 +160,29 @@ io.on("connection", (socket) => {
   socket.on("finalizeSelection", (gameId) => {
     console.log(gameId);
     io.to(gameId).emit("selectionFinal");
+  });
+
+  socket.on("roundWin", (data) => {
+    games[data.gameId].roundNum++;
+    console.log(data.gameId);
+    if (data.SpiesWin) {
+      console.log("Spies Won last round");
+      games[data.gameId].numberOfSpyWins++;
+    } else {
+      console.log("Reistance Won last round");
+      games[data.gameId].numberOfResistanceWins++;
+    }
+    if (games[data.gameId].numberOfSpyWins > 2) {
+      console.log("Spies Won the game!");
+      io.to(data.gameId).emit("GameOver", { gameWinner: "Spies" });
+    } else if (games[data.gameId].numberOfResistanceWins > 2) {
+      console.log("Resistance Won the game!");
+      io.to(data.gameId).emit("GameOver", { gameWinner: "Resistance" });
+    } else {
+      console.log("Next Round!");
+      io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
+    }
+    games[data.gameId].roundApproves = [];
   });
 
   socket.on("disconnect", () => {

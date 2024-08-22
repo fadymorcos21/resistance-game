@@ -23,6 +23,7 @@ const HomeScreen = ({ navigation }) => {
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
         socket,
+        name,
       });
     });
 

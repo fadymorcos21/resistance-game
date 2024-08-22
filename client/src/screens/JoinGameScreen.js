@@ -13,6 +13,7 @@ const JoinGameScreen = ({ route, navigation }) => {
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
         socket,
+        name,
       });
     });
 

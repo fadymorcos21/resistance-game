@@ -1,42 +1,34 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
-import io from "socket.io-client";
+import React, { useEffect } from "react";
+import { View, Text, StyleSheet } from "react-native";
 
 const RoundEndScreen = ({ route, navigation }) => {
-  const { socket, gameId } = route.params;
-
-  const [role, setRole] = useState("");
-  const [loading, setLoading] = useState(true);
+  const { socket, gameId, name, spiesWin } = route.params;
 
   useEffect(() => {
-    socket.emit("requestRole", gameId);
+    // Emit the round result to the server
+    socket.emit("roundWin", { gameId, spiesWin });
 
-    socket.on("roleReveal", ({ role }) => {
-      setTimeout(() => {
-        setRole(role);
-        setLoading(false);
-        console.log("MADE IT HERE");
-      }, 3000); // Delay for 3 seconds to build suspense
-      // Wait additional 4 seconds after reveal to build suspense
-      setTimeout(() => {
-        navigation.navigate("Game", { gameId, socket }); // Pass necessary parameters
-      }, 4000);
+    socket.on("GameWinner", ({ gameWinner }) => {
+      // Navigate back to the "Game" screen after 3 seconds
+      const timer = setTimeout(() => {
+        if (gameWinner === "TBD") {
+          navigation.navigate("Game", { socket, gameId, name }); // Pass necessary parameters
+        } else if (gameWinner != "TBD") {
+          navigation.navigate("GameOver", { socket, gameId, name, gameWinner }); // Pass necessary parameters
+        }
+      }, 3500);
     });
 
-    return () => {
-      socket.off("roleReveal");
-    };
-  }, [socket, navigation]);
+    // Cleanup the timeout if the component unmounts
+    return () => clearTimeout(timer);
+  }, [navigation, socket, gameId, spiesWin, name]);
 
   return (
     <View style={styles.container}>
-      {loading ? (
-        <>
-          <Text style={styles.text}>You are...</Text>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </>
+      {spiesWin ? (
+        <Text style={styles.revealText}>Spies Win!</Text>
       ) : (
-        <Text style={styles.revealText}>{role}!</Text>
+        <Text style={styles.revealText}>Resistance Wins!</Text>
       )}
     </View>
   );
