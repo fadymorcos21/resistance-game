@@ -3,14 +3,15 @@ import React, { useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 const RoundEndScreen = ({ route, navigation }) => {
-  const { socket, gameId, name, spiesWin, numberOfSpies, leader } =
+  const { socket, gameId, name, spiesWin, numberOfSpies, isSkipped, leader } =
     route.params;
 
   useFocusEffect(() => {
     // Emit the round result to the server
-    console.log("Revealed spies winner?: " + spiesWin);
-    if (socket.id === leader?.socketId) {
-      socket.emit("roundWin", { gameId, spiesWin });
+    console.log("Revealed spies winner?: could be skipped " + spiesWin);
+    console.log(leader.socketId);
+    if (socket.id === leader.socketId) {
+      socket.emit("roundWin", { gameId, spiesWin, isSkipped });
     }
 
     socket.on("GameOver", ({ gameWinner }) => {
@@ -27,8 +28,12 @@ const RoundEndScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      {spiesWin ? (
-        <Text style={styles.revealText}>Spies Win the round!</Text>
+      {isSkipped ? (
+        <Text>Skipping Leader</Text>
+      ) : spiesWin ? (
+        <Text style={styles.revealText}>
+          Spies Win the round! with {numberOfSpies} Spies
+        </Text>
       ) : (
         <Text style={styles.revealText}>Resistance Wins the round!</Text>
       )}

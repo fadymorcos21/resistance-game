@@ -16,11 +16,11 @@ const RevealScreen = ({ route, navigation }) => {
         setRole(role);
         setLoading(false);
         console.log("MADE IT HERE");
-      }, 500); // Delay for 3 seconds to build suspense
+      }, 3000); // Delay for 3 seconds to build suspense
       // Wait additional 4 seconds after reveal to build suspense
       setTimeout(() => {
         navigation.navigate("Game", { gameId, socket, name }); // Pass necessary parameters
-      }, 700);
+      }, 4500);
     });
 
     return () => {

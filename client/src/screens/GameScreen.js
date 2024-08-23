@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 
 const GameScreen = ({ route, navigation }) => {
   const { socket, gameId, name } = route.params;
+
   const [missionNumber, setMissionNumber] = useState(null);
   const [missionCrew, setMissionCrew] = useState([]);
   const [approves, setApproves] = useState([]);
@@ -65,40 +66,69 @@ const GameScreen = ({ route, navigation }) => {
       });
 
       const checkSpyWin = (details) => {
-        let spyCount = 0;
         const numOfPlayers = details.numberOfPlayers;
-        for (let i = 0; i < details.currentMissionCrew.length; i++) {
-          if (details.currentMissionCrew[i].role === "Spy") {
-            spyCount++;
+        const leader = details.roundLeader;
+
+        let approvedCount = 0;
+        for (let i = 0; i < details.roundApproves.length; i++) {
+          if (details.roundApproves[i].votedApprove) {
+            approvedCount++;
           }
         }
-        if (missionNumber >= 4 && numOfPlayers >= 7 && spyCount >= 2) {
+        console.log("APPROVE COUNT REAL: " + (approvedCount + 1));
+        let spyCount = 0;
+        if (approvedCount + 1 < numOfPlayers / 2) {
+          console.log("NOT ENOUGH VOTES");
+          // details.roundApproves = [];
+          // details.currentMissionCrew = [];
+          // socket.emit("updateGameDetails", { details, gameId });
           navigation.navigate("RoundEnd", {
             socket,
             gameId,
             name,
             spiesWin: true,
             numberOfSpies: spyCount,
-            leader: details.roundLeader,
+            isSkipped: true,
+            leader,
           });
-        } else if (spyCount > 0) {
-          navigation.navigate("RoundEnd", {
-            socket,
-            gameId,
-            name,
-            spiesWin: true,
-            numberOfSpies: spyCount,
-            leader: details.roundLeader,
-          });
+          return;
         } else {
-          navigation.navigate("RoundEnd", {
-            socket,
-            gameId,
-            name,
-            spiesWin: false,
-            numberOfSpies: 0,
-            leader: details.roundLeader,
-          });
+          for (let i = 0; i < details.currentMissionCrew.length; i++) {
+            if (details.currentMissionCrew[i].role === "Spy") {
+              spyCount++;
+            }
+          }
+          if (missionNumber >= 4 && numOfPlayers >= 7 && spyCount >= 2) {
+            navigation.navigate("RoundEnd", {
+              socket,
+              gameId,
+              name,
+              spiesWin: true,
+              numberOfSpies: spyCount,
+              isSkipped: false,
+              leader,
+            });
+          } else if (spyCount > 0) {
+            navigation.navigate("RoundEnd", {
+              socket,
+              gameId,
+              name,
+              spiesWin: true,
+              numberOfSpies: spyCount,
+              isSkipped: false,
+              leader,
+            });
+          } else {
+            navigation.navigate("RoundEnd", {
+              socket,
+              gameId,
+              name,
+              spiesWin: false,
+              numberOfSpies: 0,
+              isSkipped: false,
+              leader,
+            });
+          }
         }
       };
 

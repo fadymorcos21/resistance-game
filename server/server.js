@@ -30,7 +30,10 @@ function generateRandomString() {
 function assignRoles(gameId) {
   const game = games[gameId];
   const players = game.players;
-  const numSpies = 2;
+  console.log("dassssssssssssssssssssssssssssssssssssssssssssss");
+  console.log([players.length]);
+  console.log(playerRolesDistribution[players.length].spies);
+  const numSpies = playerRolesDistribution[players.length].spies;
   const shuffled = players.sort(() => 0.5 - Math.random()); // Shuffle array
 
   // Assign roles
@@ -137,7 +140,7 @@ io.on("connection", (socket) => {
     if (game) {
       game.numberOfPlayers = game.players.length;
       assignRoles(data.gameId);
-      game.roundLeader = game.players[0];
+      game.roundLeader = game.players[Math.floor(Math.random() * 5)];
       io.to(data.gameId).emit("gameStart", { message: "Game is starting" });
     } else {
       socket.emit("error", { message: "Game not found" });
@@ -163,26 +166,43 @@ io.on("connection", (socket) => {
   });
 
   socket.on("roundWin", (data) => {
-    games[data.gameId].roundNum++;
+    const shuffleAndPickLeader = (players) => {
+      const shuffledPlayers = players.sort(() => 0.5 - Math.random());
+      return shuffledPlayers[0]; // Return the first player as the new leader
+    };
+
+    // increment only if not skipped
+    if (!data.isSkipped) {
+      games[data.gameId].roundNum++;
+    }
+    const lead = shuffleAndPickLeader(games[data.gameId].players);
+    games[data.gameId].roundLeader = lead;
     games[data.gameId].roundApproves = [];
     games[data.gameId].currentMissionCrew = [];
+
     console.log("data from roundWin (spiesWin): " + data.spiesWin);
     console.log("RoundNow : " + games[data.gameId].roundNum);
-    if (data.spiesWin) {
-      console.log("Spies Won last round");
-      games[data.gameId].numberOfSpyWins++;
+    // All this should be if not skipped
+    if (!data.isSkipped) {
+      if (data.spiesWin) {
+        console.log("Spies Won last round");
+        games[data.gameId].numberOfSpyWins++;
+      } else {
+        console.log("Reistance Won last round");
+        games[data.gameId].numberOfResistanceWins++;
+      }
+      if (games[data.gameId].numberOfSpyWins > 2) {
+        console.log("Spies Won the game!");
+        io.to(data.gameId).emit("GameOver", { gameWinner: "Spies" });
+      } else if (games[data.gameId].numberOfResistanceWins > 2) {
+        console.log("Resistance Won the game!");
+        io.to(data.gameId).emit("GameOver", { gameWinner: "Resistance" });
+      } else {
+        console.log("Next Round!");
+        io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
+      }
     } else {
-      console.log("Reistance Won last round");
-      games[data.gameId].numberOfResistanceWins++;
-    }
-    if (games[data.gameId].numberOfSpyWins > 2) {
-      console.log("Spies Won the game!");
-      io.to(data.gameId).emit("GameOver", { gameWinner: "Spies" });
-    } else if (games[data.gameId].numberOfResistanceWins > 2) {
-      console.log("Resistance Won the game!");
-      io.to(data.gameId).emit("GameOver", { gameWinner: "Resistance" });
-    } else {
-      console.log("Next Round!");
+      console.log("Next Leadere!");
       io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
     }
   });
