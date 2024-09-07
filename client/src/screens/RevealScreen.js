@@ -6,14 +6,16 @@ const RevealScreen = ({ route, navigation }) => {
   const { socket, gameId, name } = route.params;
 
   const [role, setRole] = useState("");
+  const [spies, setSpies] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     socket.emit("requestRole", gameId);
 
-    socket.on("roleReveal", ({ role }) => {
+    socket.on("roleReveal", ({ role, spies }) => {
       setTimeout(() => {
         setRole(role);
+        setSpies(spies);
         setLoading(false);
         console.log("MADE IT HERE");
       }, 3000); // Delay for 3 seconds to build suspense
@@ -36,7 +38,14 @@ const RevealScreen = ({ route, navigation }) => {
           <ActivityIndicator size="large" color="#0000ff" />
         </>
       ) : (
-        <Text style={styles.revealText}>{role}!</Text>
+        <View>
+          <Text style={styles.revealText}>{role}!</Text>
+          {role === "Spy" && spies.length > 0 && (
+            <Text style={styles.spyText}>
+              Other spies: {spies.map((spy) => spy.name).join(", ")}
+            </Text>
+          )}
+        </View>
       )}
     </View>
   );

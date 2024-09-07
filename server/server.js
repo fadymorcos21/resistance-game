@@ -26,30 +26,6 @@ function generateRandomString() {
   return result;
 }
 
-// Assign roles and emit them
-function assignRoles(gameId) {
-  const game = games[gameId];
-  const players = game.players;
-  console.log("dassssssssssssssssssssssssssssssssssssssssssssss");
-  console.log([players.length]);
-  console.log(playerRolesDistribution[players.length].spies);
-  const numSpies = playerRolesDistribution[players.length].spies;
-  const shuffled = players.sort(() => 0.5 - Math.random()); // Shuffle array
-
-  // Assign roles
-  shuffled.forEach((player, index) => {
-    player.role = index < numSpies ? "Spy" : "Resistance";
-  });
-
-  // Emit roles to each player
-  // shuffled.forEach((player) => {
-  //   io.to(player.socketId).emit("roleReveal", { role: player.role });
-  // });
-  // console.log(games[gameId]);
-}
-
-const games = {};
-
 // Distribution of players as resistance and spies based on total player count
 const playerRolesDistribution = {
   5: { resistance: 3, spies: 2 },
@@ -69,6 +45,29 @@ const missionTeamRequirements = {
   9: [3, 4, 4, 5, 5],
   10: [3, 4, 4, 5, 5],
 };
+
+// Assign roles and emit them
+function assignRoles(gameId) {
+  const game = games[gameId];
+  const players = game.players;
+  console.log("dassssssssssssssssssssssssssssssssssssssssssssss");
+  console.log([players.length]);
+  const numSpies = playerRolesDistribution[players.length].spies;
+  const shuffled = players.sort(() => 0.5 - Math.random()); // Shuffle array
+
+  // Assign roles
+  shuffled.forEach((player, index) => {
+    player.role = index < numSpies ? "Spy" : "Resistance";
+  });
+
+  // Emit roles to each player
+  // shuffled.forEach((player) => {
+  //   io.to(player.socketId).emit("roleReveal", { role: player.role });
+  // });
+  // console.log(games[gameId]);
+}
+
+const games = {};
 
 io.on("connection", (socket) => {
   console.log("New client connected: " + socket.id);
@@ -149,15 +148,51 @@ io.on("connection", (socket) => {
 
   socket.on("requestRole", (gameId) => {
     console.log(gameId);
+
+    const spies = games[gameId].players
+      .filter(
+        (player) => player.role === "Spy" && player.socketId !== socket.id
+      )
+      .map((player) => ({ name: player.name, socketId: player.socketId }));
+
     io.to(socket.id).emit("roleReveal", {
       role: games[gameId].players.find(
         (player) => player.socketId === socket.id
       ).role,
+      spies,
     });
     console.log(games[gameId]);
     console.log(
       games[gameId].players.find((player) => player.socketId === socket.id).role
     );
+  });
+
+  socket.on("missionComplete", ({ gameId, results }) => {
+    const game = games[gameId]; // Get the game object
+    const players = game.players; // Get the players list
+    const numPlayers = players.length; // Get the number of players in the game
+
+    // Count the number of sabotages
+    const sabotages = results.filter(
+      (result) => result.result === "sabotage"
+    ).length;
+
+    // Determine if spies win based on the sabotages
+    let spiesWin = false;
+
+    // If at least 7 players and it's round 4 or later, 2 sabotages are needed for spies to win
+    if (numPlayers >= 7 && game.roundNum >= 4) {
+      spiesWin = sabotages >= 2;
+    } else {
+      // Otherwise, 1 sabotage is enough for spies to win
+      spiesWin = sabotages >= 1;
+    }
+
+    // Broadcast the mission result to all players
+    io.to(gameId).emit("missionResult", {
+      sabotages,
+      spiesWin,
+    });
   });
 
   socket.on("finalizeSelection", (gameId) => {

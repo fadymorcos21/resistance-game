@@ -1,30 +1,45 @@
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 const RoundEndScreen = ({ route, navigation }) => {
-  const { socket, gameId, name, spiesWin, numberOfSpies, isSkipped, leader } =
+  const { socket, gameId, name, spiesWin, sabotages, isSkipped, leader } =
     route.params;
 
-  useFocusEffect(() => {
-    // Emit the round result to the server
-    console.log("Revealed spies winner?: could be skipped " + spiesWin);
-    console.log(leader.socketId);
-    if (socket.id === leader.socketId) {
-      socket.emit("roundWin", { gameId, spiesWin, isSkipped });
-    }
+  useFocusEffect(
+    useCallback(() => {
+      // Emit the round result to the server
+      console.log("Revealed spies winner?: could be skipped " + spiesWin);
+      console.log(leader.socketId);
+      if (socket.id === leader.socketId) {
+        socket.emit("roundWin", { gameId, spiesWin, isSkipped });
+      }
 
-    socket.on("GameOver", ({ gameWinner }) => {
-      // Navigate back to the "Game" screen after 3 seconds
-      const timer = setTimeout(() => {
-        if (gameWinner === "TBD") {
-          navigation.navigate("Game", { socket, gameId, name }); // Pass necessary parameters
-        } else if (gameWinner != "TBD") {
-          navigation.navigate("GameOver", { socket, gameId, name, gameWinner }); // Pass necessary parameters
-        }
-      }, 3500);
-    });
-  }, [navigation, socket, gameId, spiesWin, name]);
+      const handleGameOver = ({ gameWinner }) => {
+        // Navigate back to the "Game" screen after 3 seconds
+        const timer = setTimeout(() => {
+          if (gameWinner === "TBD") {
+            navigation.navigate("Game", { socket, gameId, name }); // Pass necessary parameters
+          } else if (gameWinner !== "TBD") {
+            navigation.navigate("GameOver", {
+              socket,
+              gameId,
+              name,
+              gameWinner,
+            }); // Pass necessary parameters
+          }
+        }, 3500);
+
+        return () => clearTimeout(timer); // Clean up the timer
+      };
+
+      socket.on("GameOver", handleGameOver);
+
+      return () => {
+        socket.off("GameOver", handleGameOver); // Clean up the socket listener
+      };
+    }, [navigation, socket, gameId, spiesWin, name, leader.socketId]) // Wrap the function in useCallback and pass dependencies
+  );
 
   return (
     <View style={styles.container}>
@@ -32,7 +47,7 @@ const RoundEndScreen = ({ route, navigation }) => {
         <Text>Skipping Leader</Text>
       ) : spiesWin ? (
         <Text style={styles.revealText}>
-          Spies Win the round! with {numberOfSpies} Spies
+          Spies Win the round! with {sabotages} sabotages
         </Text>
       ) : (
         <Text style={styles.revealText}>Resistance Wins the round!</Text>

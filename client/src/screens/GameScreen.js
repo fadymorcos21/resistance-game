@@ -76,6 +76,7 @@ const GameScreen = ({ route, navigation }) => {
           }
         }
         console.log("APPROVE COUNT REAL: " + (approvedCount + 1));
+        // About to be unnessesary code REMOVE
         let spyCount = 0;
         if (approvedCount + 1 < numOfPlayers / 2) {
           console.log("NOT ENOUGH VOTES");
@@ -87,7 +88,7 @@ const GameScreen = ({ route, navigation }) => {
             gameId,
             name,
             spiesWin: true,
-            numberOfSpies: spyCount,
+            sabotages: spyCount,
             isSkipped: true,
             leader,
           });
@@ -98,37 +99,13 @@ const GameScreen = ({ route, navigation }) => {
               spyCount++;
             }
           }
-          if (missionNumber >= 4 && numOfPlayers >= 7 && spyCount >= 2) {
-            navigation.navigate("RoundEnd", {
-              socket,
-              gameId,
-              name,
-              spiesWin: true,
-              numberOfSpies: spyCount,
-              isSkipped: false,
-              leader,
-            });
-          } else if (spyCount > 0) {
-            navigation.navigate("RoundEnd", {
-              socket,
-              gameId,
-              name,
-              spiesWin: true,
-              numberOfSpies: spyCount,
-              isSkipped: false,
-              leader,
-            });
-          } else {
-            navigation.navigate("RoundEnd", {
-              socket,
-              gameId,
-              name,
-              spiesWin: false,
-              numberOfSpies: 0,
-              isSkipped: false,
-              leader,
-            });
-          }
+          navigation.navigate("Mission", {
+            socket,
+            gameId,
+            name,
+            leader,
+            crew: details.currentMissionCrew,
+          });
         }
       };
 
@@ -250,18 +227,6 @@ const GameScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      {gameDetails && (
-        <View>
-          <Text>
-            {
-              gameDetails.players.find(
-                (player) => player.socketId === socket.id
-              ).role
-            }
-          </Text>
-          <Text>{name}</Text>
-        </View>
-      )}
       {missionNumber && (
         <Text style={styles.header}>Mission {missionNumber}</Text>
       )}
@@ -342,12 +307,16 @@ const GameScreen = ({ route, navigation }) => {
             }}
           />
         </View>
-      ) : (
+      ) : !voted ? (
         <Text>Waiting for leader to finalize selection</Text>
+      ) : (
+        <Text>Waiting for votes!:</Text>
       )}
       <View style={styles.voteResults}>
         {approves.map((player) => (
-          <Text key={player.socketId}>{player.name}</Text>
+          <Text key={player.socketId}>
+            {player.name} Voted: {player.votedApprove ? " Approve!" : "SKIP!"}
+          </Text>
         ))}
       </View>
     </View>

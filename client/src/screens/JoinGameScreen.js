@@ -32,7 +32,7 @@ const JoinGameScreen = ({ route, navigation }) => {
 
   const joinGame = () => {
     console.log(`Attempting join`);
-    socket.emit("joinGame", { name, gameId: PIN });
+    socket.emit("joinGame", { name, gameId: PIN.toUpperCase() });
   };
 
   return (
