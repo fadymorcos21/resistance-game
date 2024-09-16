@@ -162,7 +162,13 @@ const GameScreen = ({ route, navigation }) => {
   }, [gameDetails, missionNumber]);
 
   const handlePlayerSelection = (value, ind) => {
-    const player = JSON.parse(value);
+    let player = gameDetails.players.find(
+      (player) => player.socketId === value
+    );
+    player = { ...player, played: null };
+    console.log("handlePlayerSelection IS CALLED:");
+    console.log(player);
+
     setDropdownValues((prev) => {
       const newValues = [...prev];
       newValues[ind] = value;
@@ -242,7 +248,7 @@ const GameScreen = ({ route, navigation }) => {
           }).map((_, index) => {
             const items = gameDetails.players.map((player) => ({
               label: player.name,
-              value: JSON.stringify(player),
+              value: player.socketId,
             }));
 
             return socket.id === leader?.socketId ? (
@@ -253,9 +259,7 @@ const GameScreen = ({ route, navigation }) => {
                 <DropDownPicker
                   open={openDropdown[index]} // Controls whether the dropdown is open
                   value={
-                    missionCrew[index]
-                      ? JSON.stringify(missionCrew[index])
-                      : null
+                    missionCrew[index] ? missionCrew[index].socketId : null
                   } // Reflect the current selection from missionCrew
                   items={items} // List of selectable options
                   setOpen={(open) => {
@@ -265,9 +269,7 @@ const GameScreen = ({ route, navigation }) => {
                   }}
                   setValue={(callback) => {
                     const selectedValue = callback(
-                      missionCrew[index]
-                        ? JSON.stringify(missionCrew[index])
-                        : null
+                      missionCrew[index] ? missionCrew[index].socketId : null
                     );
                     handlePlayerSelection(selectedValue, index);
                   }}

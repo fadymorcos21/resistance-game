@@ -21,12 +21,48 @@ const App = () => {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="CreateGame" component={CreateGameScreen} />
         <Stack.Screen name="JoinGame" component={JoinGameScreen} />
-        <Stack.Screen name="GameLobby" component={GameLobbyScreen} />
-        <Stack.Screen name="Reveal" component={RevealScreen} />
-        <Stack.Screen name="Game" component={GameScreen} />
-        <Stack.Screen name="RoundEnd" component={RoundEndScreen} />
-        <Stack.Screen name="GameOver" component={GameOverScreen} />
-        <Stack.Screen name="Mission" component={MissionScreen} />
+        <Stack.Screen
+          name="GameLobby"
+          component={GameLobbyScreen}
+          options={{
+            headerLeft: null, // This removes the back button
+          }}
+        />
+        <Stack.Screen
+          name="Reveal"
+          component={RevealScreen}
+          options={{
+            headerLeft: null, // This removes the back button
+          }}
+        />
+        <Stack.Screen
+          name="Game"
+          component={GameScreen}
+          options={{
+            headerLeft: null, // This removes the back button
+          }}
+        />
+        <Stack.Screen
+          name="RoundEnd"
+          component={RoundEndScreen}
+          options={{
+            headerLeft: null, // This removes the back button
+          }}
+        />
+        <Stack.Screen
+          name="GameOver"
+          component={GameOverScreen}
+          options={{
+            headerLeft: null, // This removes the back button
+          }}
+        />
+        <Stack.Screen
+          name="Mission"
+          component={MissionScreen}
+          options={{
+            headerLeft: null, // This removes the back button
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

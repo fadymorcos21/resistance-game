@@ -5,9 +5,6 @@ import { View, Text, StyleSheet, Button } from "react-native";
 const MissionScreen = ({ route, navigation }) => {
   const { socket, gameId, name, leader, crew } = route.params;
 
-  // State to keep track of the actions played by crew members
-  const [submissions, setSubmissions] = useState([]);
-
   useFocusEffect(
     useCallback(() => {
       const handleMissionResult = ({ sabotages, spiesWin }) => {
@@ -43,26 +40,11 @@ const MissionScreen = ({ route, navigation }) => {
 
   // Function to handle a crew member's action (success or sabotage)
   const handleMissionAction = (action) => {
-    // Add the submission to the submissions state
-    setSubmissions((prevSubmissions) => [
-      ...prevSubmissions,
-      { playerId: socket.id, result: action },
-    ]);
-
-    // If all crew members have played, emit the result to the server
-    console.log("Sub length:");
-    console.log(submissions.length);
-    console.log("crew length:");
-    console.log(crew.length);
-
-    if (submissions.length === crew.length) {
-      // Emit the final results to the server once all crew members have played
-      socket.emit("missionComplete", {
-        gameId,
-        results: [...submissions, { playerId: socket.id, result: action }],
-      });
-      console.log("All crew members have played. Mission complete.");
-    }
+    // Emit the final results to the server once all crew members have played
+    socket.emit("crewMemberVoted", {
+      gameId,
+      action,
+    });
   };
 
   return (

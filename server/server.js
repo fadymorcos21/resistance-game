@@ -167,15 +167,30 @@ io.on("connection", (socket) => {
     );
   });
 
-  socket.on("missionComplete", ({ gameId, results }) => {
+  socket.on("crewMemberVoted", ({ gameId, action }) => {
     const game = games[gameId]; // Get the game object
     const players = game.players; // Get the players list
     const numPlayers = players.length; // Get the number of players in the game
 
+    game.currentMissionCrew = game.currentMissionCrew.map((player) => {
+      if (player.socketId === socket.id) {
+        return { ...player, played: action };
+      }
+      return player;
+    });
+
     // Count the number of sabotages
-    const sabotages = results.filter(
-      (result) => result.result === "sabotage"
+    const sabotages = game.currentMissionCrew.filter(
+      (player) => player.played === "sabotage"
     ).length;
+
+    // Check if all crew members have voted before proceeding
+    const allVoted = game.currentMissionCrew.every((player) => player.played);
+
+    if (!allVoted) {
+      console.log("Waiting for all crew members to vote.");
+      return;
+    }
 
     // Determine if spies win based on the sabotages
     let spiesWin = false;
