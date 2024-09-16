@@ -195,10 +195,22 @@ const GameScreen = ({ route, navigation }) => {
   };
 
   const handleLeaderFinalized = () => {
-    setSelectionFinal(() => {
-      socket.emit("finalizeSelection", gameId);
-      return true;
-    });
+    console.log(
+      missionTeamRequirements[gameDetails.numberOfPlayers][missionNumber - 1]
+    );
+    const selections = missionCrew.filter((player) => player != null).length;
+    console.log(selections);
+    if (
+      missionTeamRequirements[gameDetails.numberOfPlayers][missionNumber - 1] !=
+      selections
+    ) {
+      alert("Need to make all selections");
+    } else {
+      setSelectionFinal(() => {
+        socket.emit("finalizeSelection", gameId);
+        return true;
+      });
+    }
   };
 
   const voteApprove = (approved) => {
