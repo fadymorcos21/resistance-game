@@ -17,8 +17,10 @@ const JoinGameScreen = ({ route, navigation }) => {
       });
     });
 
-    socket.on("joinError", (error) => {
-      alert("Join Failed", error.message);
+    socket.on("joinError", (data) => {
+      console.log("WHATS POOPERRS");
+      console.log(data.message);
+      alert("Join Failed: " + data.message);
       setIsJoining(false);
     });
 

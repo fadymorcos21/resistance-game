@@ -98,6 +98,11 @@ io.on("connection", (socket) => {
 
   socket.on("joinGame", ({ name, gameId }) => {
     if (games[gameId]) {
+      console.log(games[gameId].players.length);
+      if (games[gameId].players.length === 10) {
+        socket.emit("joinError", { message: "Game is full!" });
+        return;
+      }
       games[gameId].players.push({ name, socketId: socket.id, role: null });
       socket.join(gameId);
       socket.gameId = gameId;
@@ -109,7 +114,7 @@ io.on("connection", (socket) => {
         gameId: gameId,
       });
     } else {
-      socket.emit("joinError", "Game not found");
+      socket.emit("joinError", { message: "Game not found" });
     }
   });
 
