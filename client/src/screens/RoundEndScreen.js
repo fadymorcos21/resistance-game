@@ -17,6 +17,9 @@ const RoundEndScreen = ({ route, navigation }) => {
 
       const handleGameOver = ({ gameWinner }) => {
         // Navigate back to the "Game" screen after 3 seconds
+        console.log("handleGameOverTriggered!!!!!!!!!!");
+        console.log(gameWinner);
+
         const timer = setTimeout(() => {
           if (gameWinner === "TBD") {
             navigation.navigate("Game", { socket, gameId, name }); // Pass necessary parameters
@@ -28,12 +31,17 @@ const RoundEndScreen = ({ route, navigation }) => {
               gameWinner,
             }); // Pass necessary parameters
           }
-        }, 3500);
+        }, 3000);
 
         return () => clearTimeout(timer); // Clean up the timer
       };
 
-      socket.on("GameOver", handleGameOver);
+      socket.on("GameOver", (data) => {
+        handleGameOver(data);
+
+        // Acknowledge receipt of the GameOver event
+        socket.emit("acknowledgeGameOver", { gameId });
+      });
 
       return () => {
         socket.off("GameOver", handleGameOver); // Clean up the socket listener

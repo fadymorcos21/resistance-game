@@ -35,9 +35,13 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
   const createGame = () => {
-    console.log(`Game created by ${name} with ${34} players.`);
-    const numberOfPlayers = 1;
-    socket.emit("createGame", { creatorName: name, numberOfPlayers });
+    if (name.length < 1 || name.length > 15) {
+      alert("Username must be at least 1 characters and less than 15");
+    } else {
+      console.log(`Game created by ${name} with ${34} players.`);
+      const numberOfPlayers = 1;
+      socket.emit("createGame", { creatorName: name, numberOfPlayers });
+    }
   };
   return (
     <View style={styles.container}>
@@ -60,11 +64,12 @@ const HomeScreen = ({ navigation }) => {
       <Button
         title="Join Game"
         onPress={() => {
-          // Placeholder for joining a game
-          console.log("Joining a game...");
-          // navigation.navigate("Mission");
-
-          navigation.navigate("JoinGame", { name, socket });
+          if (name.length < 1 || name.length > 15) {
+            alert("Username must be at least 1 characters and less than 15");
+          } else {
+            console.log("Joining a game...");
+            navigation.navigate("JoinGame", { name, socket });
+          }
         }}
       />
     </View>

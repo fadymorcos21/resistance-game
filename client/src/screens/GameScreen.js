@@ -206,6 +206,13 @@ const GameScreen = ({ route, navigation }) => {
     ) {
       alert("Need to make all selections");
     } else {
+      const uniqueSelections = new Set(
+        missionCrew.map((player) => player.socketId)
+      );
+      if (uniqueSelections.size !== selections) {
+        alert("Please make unique selections.");
+        return;
+      }
       setSelectionFinal(() => {
         socket.emit("finalizeSelection", gameId);
         return true;

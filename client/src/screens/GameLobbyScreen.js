@@ -1,4 +1,5 @@
 // client/src/screens/GameLobbyScreen.js
+import { Console } from "console";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import io from "socket.io-client";
@@ -61,7 +62,13 @@ const GameLobbyScreen = ({ route, navigation }) => {
       </ScrollView>
       <Button
         title="Start Game"
-        onPress={() => socket.emit("startGame", { gameId })}
+        onPress={() => {
+          if (gameDetails?.players.length < 5) {
+            alert("Need at least 5 players to start game");
+          } else {
+            socket.emit("startGame", { gameId });
+          }
+        }}
       />
     </View>
   );

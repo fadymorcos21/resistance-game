@@ -114,7 +114,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("requestGameDetails", (data) => {
-    console.log("HIIIIIIIII");
+    console.log("Client Requested game details");
     const game = games[data.gameId];
     if (game) {
       socket.emit("gameDetails", game);
@@ -216,6 +216,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("roundWin", (data) => {
+    console.log("sending trigger");
     const shuffleAndPickLeader = (players) => {
       const shuffledPlayers = players.sort(() => 0.5 - Math.random());
       return shuffledPlayers[0]; // Return the first player as the new leader
@@ -232,29 +233,39 @@ io.on("connection", (socket) => {
 
     console.log("data from roundWin (spiesWin): " + data.spiesWin);
     console.log("RoundNow : " + games[data.gameId].roundNum);
+    let totalClients = io.sockets.adapter.rooms.get(data.gameId)?.size || 0;
+    let clientsInRoom = io.sockets.adapter.rooms.get(data.gameId);
+    console.log(`There are ${totalClients} in the room`);
+    console.log(`They are: `, Array.from(clientsInRoom));
+
     // All this should be if not skipped
-    if (!data.isSkipped) {
-      if (data.spiesWin) {
-        console.log("Spies Won last round");
-        games[data.gameId].numberOfSpyWins++;
+
+    // Add a delay before emitting the event to give other clients time to transition
+    setTimeout(() => {
+      console.log("Sending GameOver event after delay...");
+      if (!data.isSkipped) {
+        if (data.spiesWin) {
+          console.log("Spies Won last round");
+          games[data.gameId].numberOfSpyWins++;
+        } else {
+          console.log("Reistance Won last round");
+          games[data.gameId].numberOfResistanceWins++;
+        }
+        if (games[data.gameId].numberOfSpyWins > 2) {
+          console.log("Spies Won the game!");
+          io.to(data.gameId).emit("GameOver", { gameWinner: "Spies" });
+        } else if (games[data.gameId].numberOfResistanceWins > 2) {
+          console.log("Resistance Won the game!");
+          io.to(data.gameId).emit("GameOver", { gameWinner: "Resistance" });
+        } else {
+          console.log("Next Round!");
+          io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
+        }
       } else {
-        console.log("Reistance Won last round");
-        games[data.gameId].numberOfResistanceWins++;
-      }
-      if (games[data.gameId].numberOfSpyWins > 2) {
-        console.log("Spies Won the game!");
-        io.to(data.gameId).emit("GameOver", { gameWinner: "Spies" });
-      } else if (games[data.gameId].numberOfResistanceWins > 2) {
-        console.log("Resistance Won the game!");
-        io.to(data.gameId).emit("GameOver", { gameWinner: "Resistance" });
-      } else {
-        console.log("Next Round!");
+        console.log("Next Leadere!");
         io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
       }
-    } else {
-      console.log("Next Leadere!");
-      io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
-    }
+    }, 1000); // Delay by 1 second (1000 milliseconds)
   });
 
   socket.on("disconnect", () => {

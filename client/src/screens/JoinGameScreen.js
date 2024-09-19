@@ -18,7 +18,7 @@ const JoinGameScreen = ({ route, navigation }) => {
     });
 
     socket.on("joinError", (error) => {
-      Alert.alert("Join Failed", error.message);
+      alert("Join Failed", error.message);
       setIsJoining(false);
     });
 
