@@ -21,7 +21,6 @@ const JoinGameScreen = ({ route, navigation }) => {
       console.log("WHATS POOPERRS");
       console.log(data.message);
       alert("Join Failed: " + data.message);
-      setIsJoining(false);
     });
 
     // Clean up the effect

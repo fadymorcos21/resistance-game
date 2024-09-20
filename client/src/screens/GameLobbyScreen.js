@@ -1,5 +1,4 @@
 // client/src/screens/GameLobbyScreen.js
-import { Console } from "console";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import io from "socket.io-client";
@@ -10,6 +9,7 @@ const GameLobbyScreen = ({ route, navigation }) => {
   // const socket = io("http://192.168.191.1:3000"); // Change to your actual server address
 
   useEffect(() => {
+    console.log(`Creator of the game's name is : ${name}`);
     socket.emit("requestGameDetails", { gameId });
 
     socket.on("gameDetails", (details) => {

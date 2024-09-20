@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:3000");
+const socket = io("http://34.130.103.78:3000");
 console.log("EFFECT IS");
 socket.on("connect", () => {
   console.log("Connected to server");
@@ -23,7 +23,7 @@ const HomeScreen = ({ navigation }) => {
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
         socket,
-        name,
+        name: data.creatorName,
       });
     });
 

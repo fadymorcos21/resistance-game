@@ -25,42 +25,42 @@ const App = () => {
           name="GameLobby"
           component={GameLobbyScreen}
           options={{
-            headerLeft: null, // This removes the back button
+            headerBackVisible: false, // This removes the back button
           }}
         />
         <Stack.Screen
           name="Reveal"
           component={RevealScreen}
           options={{
-            headerLeft: null, // This removes the back button
+            headerBackVisible: false, // This removes the back button
           }}
         />
         <Stack.Screen
           name="Game"
           component={GameScreen}
           options={{
-            headerLeft: null, // This removes the back button
+            headerBackVisible: false, // This removes the back button
           }}
         />
         <Stack.Screen
           name="RoundEnd"
           component={RoundEndScreen}
           options={{
-            headerLeft: null, // This removes the back button
+            headerBackVisible: false, // This removes the back button
           }}
         />
         <Stack.Screen
           name="GameOver"
           component={GameOverScreen}
           options={{
-            headerLeft: null, // This removes the back button
+            headerBackVisible: false, // This removes the back button
           }}
         />
         <Stack.Screen
           name="Mission"
           component={MissionScreen}
           options={{
-            headerLeft: null, // This removes the back button
+            headerBackVisible: false, // This removes the back button
           }}
         />
       </Stack.Navigator>

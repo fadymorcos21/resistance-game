@@ -273,6 +273,24 @@ io.on("connection", (socket) => {
     }, 1000); // Delay by 1 second (1000 milliseconds)
   });
 
+  socket.on("WipeGame", (gameId) => {
+    const creatorName = games[gameId].creatorName;
+    const numberOfPlayers = games[gameId].numberOfPlayers;
+
+    games[gameId] = {
+      gameId,
+      creatorName,
+      numberOfPlayers,
+      roundNum: 1,
+      players: [],
+      roundLeader: null,
+      roundApproves: [],
+      currentMissionCrew: [],
+      numberOfSpyWins: 0,
+      numberOfResistanceWins: 0,
+    };
+  });
+
   socket.on("disconnect", () => {
     console.log("Client disconnected", socket.id);
     if (socket.gameId && games[socket.gameId]) {
