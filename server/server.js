@@ -60,6 +60,8 @@ function assignRoles(gameId) {
     player.role = index < numSpies ? "Spy" : "Resistance";
   });
 
+  players.sort(() => 0.5 - Math.random()); // Shuffle array
+
   // Emit roles to each player
   // shuffled.forEach((player) => {
   //   io.to(player.socketId).emit("roleReveal", { role: player.role });
@@ -86,6 +88,7 @@ io.on("connection", (socket) => {
       currentMissionCrew: [],
       numberOfSpyWins: 0,
       numberOfResistanceWins: 0,
+      leaderIndex: 0,
     };
 
     socket.join(gameId);
@@ -144,7 +147,8 @@ io.on("connection", (socket) => {
     if (game) {
       game.numberOfPlayers = game.players.length;
       assignRoles(data.gameId);
-      game.roundLeader = game.players[Math.floor(Math.random() * 5)];
+      // game.roundLeader = game.players[Math.floor(Math.random() * 5)];
+      game.roundLeader = game.players[0 % game.players.length];
       io.to(data.gameId).emit("gameStart", { message: "Game is starting" });
     } else {
       socket.emit("error", { message: "Game not found" });
@@ -231,8 +235,14 @@ io.on("connection", (socket) => {
     if (!data.isSkipped) {
       games[data.gameId].roundNum++;
     }
-    const lead = shuffleAndPickLeader(games[data.gameId].players);
-    games[data.gameId].roundLeader = lead;
+    // const lead = shuffleAndPickLeader(games[data.gameId].players);
+    games[data.gameId].roundLeader =
+      games[data.gameId].players[
+        ++games[data.gameId].leaderIndex % games[data.gameId].players.length
+      ];
+    console.log("New leader picked, players array: ");
+    console.log(games[data.gameId].players);
+
     games[data.gameId].roundApproves = [];
     games[data.gameId].currentMissionCrew = [];
 
@@ -288,6 +298,7 @@ io.on("connection", (socket) => {
       currentMissionCrew: [],
       numberOfSpyWins: 0,
       numberOfResistanceWins: 0,
+      leaderIndex: 0,
     };
   });
 
