@@ -15,6 +15,7 @@ const GameScreen = ({ route, navigation }) => {
   const [voted, setVoted] = useState(false);
   const [openDropdown, setOpenDropdown] = useState([]);
   const [dropdownValues, setDropdownValues] = useState([]);
+  const [finalized, setFinalized] = useState(false);
 
   const missionTeamRequirements = {
     5: [2, 3, 2, 3, 3],
@@ -34,6 +35,7 @@ const GameScreen = ({ route, navigation }) => {
       setLeader(null);
       setSelectionFinal(false);
       setVoted(false);
+      setFinalized(false);
 
       socket.emit("requestGameDetails", { gameId });
 
@@ -213,6 +215,7 @@ const GameScreen = ({ route, navigation }) => {
         alert("Please make unique selections.");
         return;
       }
+      setFinalized(true);
       setSelectionFinal(() => {
         socket.emit("finalizeSelection", gameId);
         return true;
@@ -270,7 +273,7 @@ const GameScreen = ({ route, navigation }) => {
               value: player.socketId,
             }));
 
-            return socket.id === leader?.socketId ? (
+            return !finalized && socket.id === leader?.socketId ? (
               <View
                 key={index}
                 style={{ zIndex: 1000 - index, marginBottom: 40 }}
@@ -307,12 +310,16 @@ const GameScreen = ({ route, navigation }) => {
           })}
       </ScrollView>
       {socket.id === leader?.socketId ? (
-        <Button
-          title="Start mission"
-          onPress={() => {
-            handleLeaderFinalized();
-          }}
-        />
+        !finalized ? (
+          <Button
+            title="Start mission"
+            onPress={() => {
+              handleLeaderFinalized();
+            }}
+          />
+        ) : (
+          <Text>Waiting for votes!</Text>
+        )
       ) : selectionFinal && !voted ? (
         <View>
           <Button
