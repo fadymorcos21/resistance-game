@@ -5,6 +5,8 @@ import { View, Text, StyleSheet, Button } from "react-native";
 const MissionScreen = ({ route, navigation }) => {
   const { socket, gameId, name, leader, crew } = route.params;
 
+  const [played, setPlayed] = useState(false);
+
   useFocusEffect(
     useCallback(() => {
       const handleMissionResult = ({ sabotages, spiesWin }) => {
@@ -40,6 +42,8 @@ const MissionScreen = ({ route, navigation }) => {
 
   // Function to handle a crew member's action (success or sabotage)
   const handleMissionAction = (action) => {
+    setPlayed(true);
+
     // Emit the final results to the server once all crew members have played
     socket.emit("crewMemberVoted", {
       gameId,
@@ -50,16 +54,20 @@ const MissionScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       {isInCrew ? (
-        <View>
-          <Button
-            title="Success"
-            onPress={() => handleMissionAction("success")}
-          />
-          <Button
-            title="Sabotage"
-            onPress={() => handleMissionAction("sabotage")}
-          />
-        </View>
+        !played ? (
+          <View>
+            <Button
+              title="Success"
+              onPress={() => handleMissionAction("success")}
+            />
+            <Button
+              title="Sabotage"
+              onPress={() => handleMissionAction("sabotage")}
+            />
+          </View>
+        ) : (
+          <Text style={styles.text}>Waiting for crewmates...</Text>
+        )
       ) : (
         <Text style={styles.text}>Waiting for the crew...</Text>
       )}

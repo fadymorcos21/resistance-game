@@ -51,7 +51,7 @@ const GameLobbyScreen = ({ route, navigation }) => {
       console.error("Error:", error.message);
     });
 
-    return () => socket.disconnect(); // Cleanup on unmount
+    return () => socket.off(); // Cleanup on unmount
   }, []);
 
   return (
