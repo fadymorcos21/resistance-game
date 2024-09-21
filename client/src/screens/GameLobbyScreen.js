@@ -6,6 +6,7 @@ import io from "socket.io-client";
 const GameLobbyScreen = ({ route, navigation }) => {
   const { gameId, socket, name } = route.params;
   const [gameDetails, setGameDetails] = useState(null);
+  const [gameLeader, setGameLeader] = useState(null);
   // const socket = io("http://192.168.191.1:3000"); // Change to your actual server address
 
   useEffect(() => {
@@ -14,16 +15,21 @@ const GameLobbyScreen = ({ route, navigation }) => {
 
     socket.on("gameDetails", (details) => {
       setGameDetails(details);
+      setGameLeader(details.gameLeader);
     });
 
     const handlePlayerJoined = (details) => {
       setGameDetails(details);
+      setGameLeader(details.gameLeader);
     };
 
     socket.on("playerJoined", handlePlayerJoined);
 
     const handlePlayerLeft = (details) => {
       setGameDetails(details);
+      setGameLeader(details.gameLeader);
+      console.log("NEW GAME LEADER: ");
+      console.log(details.gameLeader);
     };
 
     socket.on("playerLeft", handlePlayerLeft);
@@ -60,16 +66,20 @@ const GameLobbyScreen = ({ route, navigation }) => {
           </Text>
         ))}
       </ScrollView>
-      <Button
-        title="Start Game"
-        onPress={() => {
-          if (gameDetails?.players.length < 5) {
-            alert("Need at least 5 players to start game");
-          } else {
-            socket.emit("startGame", { gameId });
-          }
-        }}
-      />
+      {gameLeader?.socketId === socket.id ? (
+        <Button
+          title="Start Game"
+          onPress={() => {
+            if (gameDetails?.players.length < 5) {
+              alert("Need at least 5 players to start game");
+            } else {
+              socket.emit("startGame", { gameId });
+            }
+          }}
+        />
+      ) : (
+        <Text>Waiting for host to start...</Text>
+      )}
     </View>
   );
 };

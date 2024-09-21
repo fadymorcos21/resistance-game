@@ -79,7 +79,7 @@ io.on("connection", (socket) => {
     const gameId = generateRandomString();
     games[gameId] = {
       gameId,
-      creatorName,
+      gameLeader: { name: creatorName, socketId: socket.id },
       numberOfPlayers,
       roundNum: 1,
       players: [{ name: creatorName, socketId: socket.id, role: null }],
@@ -101,10 +101,14 @@ io.on("connection", (socket) => {
 
   socket.on("joinGame", ({ name, gameId }) => {
     if (games[gameId]) {
+      console.log("PRINTING NUM OF PLAYERS: ");
       console.log(games[gameId].players.length);
       if (games[gameId].players.length === 10) {
         socket.emit("joinError", { message: "Game is full!" });
         return;
+      } else if (games[gameId].players.length === 0) {
+        console.log("Zero players hit");
+        games[gameId].gameLeader = { name: name, socketId: socket.id };
       }
       games[gameId].players.push({ name, socketId: socket.id, role: null });
       socket.join(gameId);
@@ -284,12 +288,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("WipeGame", (gameId) => {
-    const creatorName = games[gameId].creatorName;
+    const gameLeader = games[gameId].gameLeader;
     const numberOfPlayers = games[gameId].numberOfPlayers;
 
     games[gameId] = {
       gameId,
-      creatorName,
+      gameLeader,
       numberOfPlayers,
       roundNum: 1,
       players: [],
@@ -310,6 +314,15 @@ io.on("connection", (socket) => {
         (p) => p.socketId === socket.id
       );
       if (playerIndex !== -1) {
+        if (socket.id === game.gameLeader.socketId) {
+          console.log("HIT");
+          const newGameLeader =
+            game.players[(playerIndex + 1) % game.players.length];
+          game.gameLeader = {
+            name: newGameLeader.name,
+            socketId: newGameLeader.socketId,
+          };
+        }
         const playerName = game.players[playerIndex].name;
         game.players.splice(playerIndex, 1);
         console.log(`${playerName} left the game: ${socket.gameId}`);
