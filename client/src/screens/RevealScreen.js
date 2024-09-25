@@ -19,7 +19,6 @@ const RevealScreen = ({ route, navigation }) => {
         setRole(role);
         setSpies(spies);
         setLoading(false);
-        console.log("MADE IT HERE");
       }, 3000); // Delay for 3 seconds to build suspense
       // Wait additional 4 seconds after reveal to build suspense
       setTimeout(() => {

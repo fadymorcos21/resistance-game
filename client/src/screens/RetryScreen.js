@@ -20,7 +20,6 @@ const RetryScreen = ({ route, navigation }) => {
     });
 
     socket.on("joinError", (data) => {
-      console.log("WHATS POOPERRS");
       console.log(data.message);
       alert("Join Failed: " + data.message);
     });
@@ -40,9 +39,8 @@ const RetryScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Some one left and broke the game</Text>
+      <Text style={styles.title}>Someone left</Text>
       <Text style={styles.subtitle}>Go back to game lobby and try again</Text>
-      <Text style={styles.subtitle}>Don't fricken close the app hoes</Text>
 
       <Button title="Back to lobby" onPress={() => joinGame()} />
     </View>

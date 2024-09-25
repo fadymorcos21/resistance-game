@@ -20,7 +20,6 @@ const RoundEndScreen = ({ route, navigation }) => {
 
       const handleGameOver = ({ gameWinner }) => {
         // Navigate back to the "Game" screen after 3 seconds
-        console.log("handleGameOverTriggered!!!!!!!!!!");
         console.log(gameWinner);
 
         timer = setTimeout(() => {

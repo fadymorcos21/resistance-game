@@ -68,7 +68,6 @@ io.on("connection", (socket) => {
   console.log("New client connected: " + socket.id);
 
   socket.on("createGame", ({ creatorName, numberOfPlayers }) => {
-    console.log("HELOO");
     const gameId = generateRandomString();
     games[gameId] = {
       gameId,
@@ -94,13 +93,10 @@ io.on("connection", (socket) => {
 
   socket.on("joinGame", ({ name, gameId }) => {
     if (games[gameId]) {
-      console.log("PRINTING NUM OF PLAYERS: ");
-      console.log(games[gameId].players.length);
       if (games[gameId].players.length === 10) {
         socket.emit("joinError", { message: "Game is full!" });
         return;
       } else if (games[gameId].players.length === 0) {
-        console.log("Zero players hit");
         games[gameId].gameLeader = { name: name, socketId: socket.id };
       }
       games[gameId].players.push({ name, socketId: socket.id, role: null });
@@ -133,7 +129,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("liveUpdateGameDetails", (data) => {
-    console.log("Live UPDATE OF");
     console.log(data.gameDetails);
     games[data.gameId] = data.gameDetails;
     io.to(data.gameId).emit("missionUpdate", games[data.gameId]);
@@ -242,8 +237,6 @@ io.on("connection", (socket) => {
     games[data.gameId].roundApproves = [];
     games[data.gameId].currentMissionCrew = [];
 
-    console.log("data from roundWin (spiesWin): " + data.spiesWin);
-    console.log("RoundNow : " + games[data.gameId].roundNum);
     let totalClients = io.sockets.adapter.rooms.get(data.gameId)?.size || 0;
     let clientsInRoom = io.sockets.adapter.rooms.get(data.gameId);
     console.log(`There are ${totalClients} in the room`);
@@ -273,7 +266,7 @@ io.on("connection", (socket) => {
           io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
         }
       } else {
-        console.log("Next Leadere!");
+        console.log("Next Leader!");
         io.to(data.gameId).emit("GameOver", { gameWinner: "TBD" });
       }
     }, 1000); // Delay by 1 second (1000 milliseconds)
@@ -307,7 +300,6 @@ io.on("connection", (socket) => {
       );
       if (playerIndex !== -1) {
         if (socket.id === game.gameLeader.socketId) {
-          console.log("HIT");
           const newGameLeader =
             game.players[(playerIndex + 1) % game.players.length];
           game.gameLeader = {

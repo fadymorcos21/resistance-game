@@ -36,7 +36,6 @@ const GameOverScreen = ({ route, navigation }) => {
     });
 
     socket.on("joinError", (data) => {
-      console.log("WHATS POOPERRS");
       console.log(data.message);
       alert("Join Failed: " + data.message);
     });

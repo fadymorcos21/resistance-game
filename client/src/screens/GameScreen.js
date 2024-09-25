@@ -79,7 +79,6 @@ const GameScreen = ({ route, navigation }) => {
             approvedCount++;
           }
         }
-        console.log("APPROVE COUNT REAL: " + (approvedCount + 1));
         // About to be unnessesary code REMOVE
         let spyCount = 0;
         if (approvedCount + 1 < numOfPlayers / 2) {
@@ -172,8 +171,6 @@ const GameScreen = ({ route, navigation }) => {
       (player) => player.socketId === value
     );
     player = { ...player, played: null };
-    console.log("handlePlayerSelection IS CALLED:");
-    console.log(player);
 
     setDropdownValues((prev) => {
       const newValues = [...prev];
@@ -205,7 +202,6 @@ const GameScreen = ({ route, navigation }) => {
       missionTeamRequirements[gameDetails.numberOfPlayers][missionNumber - 1]
     );
     const selections = missionCrew.filter((player) => player != null).length;
-    console.log(selections);
     if (
       missionTeamRequirements[gameDetails.numberOfPlayers][missionNumber - 1] !=
       selections

@@ -29,7 +29,6 @@ const GameLobbyScreen = ({ route, navigation }) => {
     const handlePlayerLeft = (details) => {
       setGameDetails(details);
       setGameLeader(details.gameLeader);
-      console.log("NEW GAME LEADER: ");
       console.log(details.gameLeader);
     };
 
