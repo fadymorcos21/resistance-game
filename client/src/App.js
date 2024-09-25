@@ -11,6 +11,7 @@ import GameScreen from "./screens/GameScreen";
 import RoundEndScreen from "./screens/RoundEndScreen";
 import GameOverScreen from "./screens/GameOverScreen";
 import MissionScreen from "./screens/MissionScreen";
+import RetryScreen from "./screens/RetryScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +60,13 @@ const App = () => {
         <Stack.Screen
           name="Mission"
           component={MissionScreen}
+          options={{
+            headerBackVisible: false, // This removes the back button
+          }}
+        />
+        <Stack.Screen
+          name="Retry"
+          component={RetryScreen}
           options={{
             headerBackVisible: false, // This removes the back button
           }}

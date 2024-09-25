@@ -50,7 +50,6 @@ const missionTeamRequirements = {
 function assignRoles(gameId) {
   const game = games[gameId];
   const players = game.players;
-  console.log("dassssssssssssssssssssssssssssssssssssssssssssss");
   console.log([players.length]);
   const numSpies = playerRolesDistribution[players.length].spies;
   const shuffled = players.sort(() => 0.5 - Math.random()); // Shuffle array
@@ -61,12 +60,6 @@ function assignRoles(gameId) {
   });
 
   players.sort(() => 0.5 - Math.random()); // Shuffle array
-
-  // Emit roles to each player
-  // shuffled.forEach((player) => {
-  //   io.to(player.socketId).emit("roleReveal", { role: player.role });
-  // });
-  // console.log(games[gameId]);
 }
 
 const games = {};
@@ -151,7 +144,6 @@ io.on("connection", (socket) => {
     if (game) {
       game.numberOfPlayers = game.players.length;
       assignRoles(data.gameId);
-      // game.roundLeader = game.players[Math.floor(Math.random() * 5)];
       game.roundLeader = game.players[0 % game.players.length];
       io.to(data.gameId).emit("gameStart", { message: "Game is starting" });
     } else {
@@ -334,9 +326,3 @@ io.on("connection", (socket) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-// app.get('/', (req, res) => res.send('Hello from the server!'));
-
-// app.listen(PORT, () => {
-//   console.log(`Server listening on port ${PORT}`);
-// });

@@ -7,7 +7,6 @@ const GameLobbyScreen = ({ route, navigation }) => {
   const { gameId, socket, name } = route.params;
   const [gameDetails, setGameDetails] = useState(null);
   const [gameLeader, setGameLeader] = useState(null);
-  // const socket = io("http://192.168.191.1:3000"); // Change to your actual server address
 
   useEffect(() => {
     console.log(`Creator of the game's name is : ${name}`);

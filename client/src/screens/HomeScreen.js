@@ -3,8 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import io from "socket.io-client";
 
-const socket = io("http://localhost:3000");
-console.log("EFFECT IS");
+const socket = io("http://34.130.113.23:3000");
 socket.on("connect", () => {
   console.log("Connected to server");
   console.log(socket.id);

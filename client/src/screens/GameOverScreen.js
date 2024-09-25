@@ -4,9 +4,25 @@ import { View, Text, Button, StyleSheet, TouchableOpacity } from "react-native";
 const GameOverScreen = ({ route, navigation }) => {
   const { socket, gameId, name, gameWinner } = route.params;
   const [showButton, setShowButton] = useState(false);
+  const [spies, setSpies] = useState([]);
 
   useEffect(() => {
-    socket.emit("WipeGame", gameId);
+    // Request game details (who the spies were) before wiping the game
+    socket.emit("requestGameDetails", { gameId });
+
+    // Listen for the game details response
+    socket.on("gameDetails", (gameDetails) => {
+      // Assuming the server sends the list of spies in the gameDetails
+      const spyPlayers = gameDetails.players.filter(
+        (player) => player.role === "Spy"
+      );
+      setSpies(spyPlayers);
+    });
+
+    // Wait for 1.5 seconds before emitting "WipeGame" to avoid timing issues
+    const wipeTimer = setTimeout(() => {
+      socket.emit("WipeGame", gameId);
+    }, 1500);
 
     socket.on("gameJoined", (data) => {
       console.log(`Game joined successfully with ID: ${data.gameId}`);
@@ -41,13 +57,25 @@ const GameOverScreen = ({ route, navigation }) => {
   const playAgain = () => {
     console.log(`Attempting join`);
     console.log(`Joining with name ${name}`);
+    socket.off("gameDetails");
     socket.emit("joinGame", { name, gameId: gameId });
-    // navigation.navigate("GameLobby", { gameId, socket, name });
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.revealText}>{gameWinner} Wins!</Text>
+      {/* Show the list of spies */}
+      <Text style={styles.revealText}>Spies were:</Text>
+      {spies.length > 0 ? (
+        spies.map((spy, index) => (
+          <Text key={index} style={styles.spyText}>
+            {spy.name}
+          </Text>
+        ))
+      ) : (
+        <Text style={styles.spyText}>Loading...</Text>
+      )}
+
       {showButton && (
         <TouchableOpacity onPress={() => playAgain()}>
           <View style={styles.button}>

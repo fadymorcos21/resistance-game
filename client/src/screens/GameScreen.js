@@ -82,9 +82,6 @@ const GameScreen = ({ route, navigation }) => {
         let spyCount = 0;
         if (approvedCount + 1 < numOfPlayers / 2) {
           console.log("NOT ENOUGH VOTES");
-          // details.roundApproves = [];
-          // details.currentMissionCrew = [];
-          // socket.emit("updateGameDetails", { details, gameId });
           navigation.navigate("RoundEnd", {
             socket,
             gameId,
@@ -128,6 +125,12 @@ const GameScreen = ({ route, navigation }) => {
         }
       };
 
+      const handlePlayerLeft = (details) => {
+        navigation.navigate("Retry", { name, gameId, socket });
+      };
+
+      socket.on("playerLeft", handlePlayerLeft);
+
       const handleSelectionFinalized = (details) => {
         setSelectionFinal(true);
       };
@@ -146,6 +149,7 @@ const GameScreen = ({ route, navigation }) => {
         socket.off("missionUpdate");
         socket.off("voteReceived");
         socket.off("selectionFinal");
+        socket.off("playerLeft", handlePlayerLeft);
       };
     }, [socket, gameId, navigation])
   );

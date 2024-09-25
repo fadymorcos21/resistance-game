@@ -31,8 +31,15 @@ const MissionScreen = ({ route, navigation }) => {
 
       socket.on("missionResult", handleMissionResult);
 
+      const handlePlayerLeft = (details) => {
+        navigation.navigate("Retry", { name, gameId, socket });
+      };
+
+      socket.on("playerLeft", handlePlayerLeft);
+
       return () => {
         socket.off("missionResult", handleMissionResult);
+        socket.off("playerLeft", handlePlayerLeft);
       };
     }, [navigation, socket, gameId, name, leader.socketId])
   );
