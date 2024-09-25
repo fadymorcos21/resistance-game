@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { View, Text, Button, StyleSheet, TouchableOpacity } from "react-native";
+import io from "socket.io-client";
+import { SocketContext } from "../SocketContext";
 
 const GameOverScreen = ({ route, navigation }) => {
-  const { socket, gameId, name, gameWinner } = route.params;
+  const { gameId, name, gameWinner } = route.params;
   const [showButton, setShowButton] = useState(false);
   const [spies, setSpies] = useState([]);
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     // Request game details (who the spies were) before wiping the game
@@ -28,7 +31,6 @@ const GameOverScreen = ({ route, navigation }) => {
       console.log(`Game joined successfully with ID: ${data.gameId}`);
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
-        socket,
         name,
       });
     });

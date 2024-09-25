@@ -1,18 +1,19 @@
 // client/src/screens/JoinGameScreen.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, Button, StyleSheet, TextInput } from "react-native";
 import io from "socket.io-client";
+import { SocketContext } from "../SocketContext";
 
 const JoinGameScreen = ({ route, navigation }) => {
-  const { name, socket } = route.params;
+  const { name } = route.params;
   const [PIN, setPIN] = useState("");
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     socket.on("gameJoined", (data) => {
       console.log(`Game joined successfully with ID: ${data.gameId}`);
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
-        socket,
         name,
       });
     });

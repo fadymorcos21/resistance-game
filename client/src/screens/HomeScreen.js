@@ -1,27 +1,19 @@
 // client/src/screens/HomeScreen.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
-import io from "socket.io-client";
-
-const socket = io("http://34.130.113.23:3000");
-socket.on("connect", () => {
-  console.log("Connected to server");
-  console.log(socket.id);
-});
-
-socket.on("connect_error", (error) => {
-  console.error("Connection error:", error);
-});
+import { SocketContext } from "../SocketContext"; // Import SocketContext
 
 const HomeScreen = ({ navigation }) => {
   const [name, setName] = useState("");
+  const socket = useContext(SocketContext); // Get the socket from context
 
   useEffect(() => {
+    if (!socket) return; // Ensure socket is initialized
+
     socket.on("gameCreated", (data) => {
       console.log(`Game created successfully with ID: ${data.gameId}`);
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
-        socket,
         name: data.gameLeader.name,
       });
     });
@@ -29,19 +21,18 @@ const HomeScreen = ({ navigation }) => {
     // Clean up the effect
     return () => {
       socket.off("gameCreated");
-      // socket.disconnect();
     };
-  }, []);
+  }, [socket, navigation]); // Re-run the effect if socket or navigation changes
 
   const createGame = () => {
     if (name.length < 1 || name.length > 15) {
-      alert("Username must be at least 1 characters and less than 15");
+      alert("Username must be at least 1 character and less than 15");
     } else {
-      console.log(`Game created by ${name} with ${34} players.`);
       const numberOfPlayers = 1;
-      socket.emit("createGame", { creatorName: name, numberOfPlayers });
+      socket?.emit("createGame", { creatorName: name, numberOfPlayers });
     }
   };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Resistance</Text>
@@ -52,22 +43,18 @@ const HomeScreen = ({ navigation }) => {
         style={styles.input}
         placeholder="Enter your name"
         value={name}
-        onChangeText={(e) => {
-          // Placeholder for joining a game
-          setName(e);
-          console.log(e);
-        }}
+        onChangeText={setName}
       />
 
-      <Button title="Create Game" onPress={() => createGame()} />
+      <Button title="Create Game" onPress={createGame} />
       <Button
         title="Join Game"
         onPress={() => {
           if (name.length < 1 || name.length > 15) {
-            alert("Username must be at least 1 characters and less than 15");
+            alert("Username must be at least 1 character and less than 15");
           } else {
             console.log("Joining a game...");
-            navigation.navigate("JoinGame", { name, socket });
+            navigation.navigate("JoinGame", { name });
           }
         }}
       />
@@ -101,13 +88,6 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderColor: "#ccc",
-  },
-  homeScreenFilename: {
-    marginVertical: 7,
-  },
-  codeHighlightContainer: {
-    borderRadius: 3,
-    paddingHorizontal: 4,
   },
 });
 

@@ -1,10 +1,12 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
+import { SocketContext } from "../SocketContext";
 
 const GameScreen = ({ route, navigation }) => {
-  const { socket, gameId, name } = route.params;
+  const { gameId, name } = route.params;
+  const socket = useContext(SocketContext);
 
   const [missionNumber, setMissionNumber] = useState(null);
   const [missionCrew, setMissionCrew] = useState([]);
@@ -83,7 +85,6 @@ const GameScreen = ({ route, navigation }) => {
         if (approvedCount + 1 < numOfPlayers / 2) {
           console.log("NOT ENOUGH VOTES");
           navigation.navigate("RoundEnd", {
-            socket,
             gameId,
             name,
             spiesWin: true,
@@ -99,7 +100,6 @@ const GameScreen = ({ route, navigation }) => {
             }
           }
           navigation.navigate("Mission", {
-            socket,
             gameId,
             name,
             leader,
@@ -126,7 +126,7 @@ const GameScreen = ({ route, navigation }) => {
       };
 
       const handlePlayerLeft = (details) => {
-        navigation.navigate("Retry", { name, gameId, socket });
+        navigation.navigate("Retry", { name, gameId });
       };
 
       socket.on("playerLeft", handlePlayerLeft);

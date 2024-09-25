@@ -1,10 +1,11 @@
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { SocketContext } from "../SocketContext";
 
 const RoundEndScreen = ({ route, navigation }) => {
-  const { socket, gameId, name, spiesWin, sabotages, isSkipped, leader } =
-    route.params;
+  const { gameId, name, spiesWin, sabotages, isSkipped, leader } = route.params;
+  const socket = useContext(SocketContext);
 
   useFocusEffect(
     useCallback(() => {
@@ -24,10 +25,9 @@ const RoundEndScreen = ({ route, navigation }) => {
 
         timer = setTimeout(() => {
           if (gameWinner === "TBD") {
-            navigation.navigate("Game", { socket, gameId, name }); // Pass necessary parameters
+            navigation.navigate("Game", { gameId, name }); // Pass necessary parameters
           } else if (gameWinner !== "TBD") {
             navigation.navigate("GameOver", {
-              socket,
               gameId,
               name,
               gameWinner,
@@ -40,7 +40,7 @@ const RoundEndScreen = ({ route, navigation }) => {
         console.log("Player left mid-game. Navigating to Retry screen.");
         // Cancel the game navigation if a player leaves
         clearTimeout(timer); // Clear the GameOver timer to avoid conflicting navigations
-        navigation.navigate("Retry", { name, gameId, socket });
+        navigation.navigate("Retry", { name, gameId });
       };
 
       // Set up socket listeners

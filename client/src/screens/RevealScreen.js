@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import io from "socket.io-client";
+import { SocketContext } from "../SocketContext";
 
 const RevealScreen = ({ route, navigation }) => {
-  const { socket, gameId, name } = route.params;
+  const { gameId, name } = route.params;
+  const socket = useContext(SocketContext);
 
   const [role, setRole] = useState("");
   const [spies, setSpies] = useState(null);
@@ -21,7 +23,7 @@ const RevealScreen = ({ route, navigation }) => {
       }, 3000); // Delay for 3 seconds to build suspense
       // Wait additional 4 seconds after reveal to build suspense
       setTimeout(() => {
-        navigation.navigate("Game", { gameId, socket, name }); // Pass necessary parameters
+        navigation.navigate("Game", { gameId, name }); // Pass necessary parameters
       }, 4500);
     });
 

@@ -1,19 +1,20 @@
 // client/src/screens/CreateGameScreen.js
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import io from "socket.io-client";
 import { Picker } from "@react-native-picker/picker";
+import { SocketContext } from "../SocketContext";
 
 const CreateGameScreen = ({ route, navigation }) => {
-  const { name, socket } = route.params;
+  const { name } = route.params;
   const [numberOfPlayers, setNumberOfPlayers] = useState("5");
+  socket = useContext(SocketContext);
 
   useEffect(() => {
     socket.on("gameCreated", (data) => {
       console.log(`Game created successfully with ID: ${data.gameId}`);
       navigation.navigate("GameLobby", {
         gameId: data.gameId,
-        socket,
       });
     });
 

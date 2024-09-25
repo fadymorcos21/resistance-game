@@ -1,9 +1,12 @@
 import { useFocusEffect } from "@react-navigation/native";
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useContext } from "react";
 import { View, Text, StyleSheet, Button } from "react-native";
+import { useEffect } from "react/cjs/react.production.min";
+import { SocketContext } from "../SocketContext";
 
 const MissionScreen = ({ route, navigation }) => {
-  const { socket, gameId, name, leader, crew } = route.params;
+  const { gameId, name, leader, crew } = route.params;
+  const socket = useContext(SocketContext);
 
   const [played, setPlayed] = useState(false);
 
@@ -19,7 +22,6 @@ const MissionScreen = ({ route, navigation }) => {
 
         // Navigate to the RoundEndScreen and pass sabotages and spiesWin
         navigation.navigate("RoundEnd", {
-          socket,
           gameId,
           name,
           sabotages,
@@ -32,7 +34,7 @@ const MissionScreen = ({ route, navigation }) => {
       socket.on("missionResult", handleMissionResult);
 
       const handlePlayerLeft = (details) => {
-        navigation.navigate("Retry", { name, gameId, socket });
+        navigation.navigate("Retry", { name, gameId });
       };
 
       socket.on("playerLeft", handlePlayerLeft);

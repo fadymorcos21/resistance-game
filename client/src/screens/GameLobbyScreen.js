@@ -1,12 +1,14 @@
 // client/src/screens/GameLobbyScreen.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
 import io from "socket.io-client";
+import { SocketContext } from "../SocketContext";
 
 const GameLobbyScreen = ({ route, navigation }) => {
-  const { gameId, socket, name } = route.params;
+  const { gameId, name } = route.params;
   const [gameDetails, setGameDetails] = useState(null);
   const [gameLeader, setGameLeader] = useState(null);
+  const socket = useContext(SocketContext);
 
   useEffect(() => {
     console.log(`Creator of the game's name is : ${name}`);
@@ -38,7 +40,6 @@ const GameLobbyScreen = ({ route, navigation }) => {
       // Make sure to show users warning message that game needs 5 to 10 players to start
       console.log("Starting game...");
       navigation.navigate("Reveal", {
-        socket,
         gameId,
         name,
       });
