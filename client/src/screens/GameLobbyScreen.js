@@ -1,7 +1,6 @@
 // client/src/screens/GameLobbyScreen.js
 import React, { useEffect, useState, useContext } from "react";
 import { View, Text, StyleSheet, ScrollView, Button } from "react-native";
-import io from "socket.io-client";
 import { SocketContext } from "../SocketContext";
 
 const GameLobbyScreen = ({ route, navigation }) => {
@@ -11,7 +10,7 @@ const GameLobbyScreen = ({ route, navigation }) => {
   const socket = useContext(SocketContext);
 
   useEffect(() => {
-    console.log(`Creator of the game's name is : ${name}`);
+    console.log(`Creator of the game's name is: ${name}`);
     socket.emit("requestGameDetails", { gameId });
 
     socket.on("gameDetails", (details) => {
@@ -29,14 +28,11 @@ const GameLobbyScreen = ({ route, navigation }) => {
     const handlePlayerLeft = (details) => {
       setGameDetails(details);
       setGameLeader(details.gameLeader);
-      console.log(details.gameLeader);
     };
 
     socket.on("playerLeft", handlePlayerLeft);
 
     const startGame = () => {
-      // Check if there's enough players first
-      // Make sure to show users warning message that game needs 5 to 10 players to start
       console.log("Starting game...");
       navigation.navigate("Reveal", {
         gameId,
@@ -50,8 +46,27 @@ const GameLobbyScreen = ({ route, navigation }) => {
       console.error("Error:", error.message);
     });
 
-    return () => socket.off(); // Cleanup on unmount
-  }, []);
+    // Disconnect the socket when leaving the screen
+    return () => {
+      socket.emit("playerLeft", { gameId, name }); // Inform others that this player left
+      // socket.disconnect(); // Disconnect the player
+    };
+  }, [gameId, name, navigation, socket]);
+
+  // React.useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     headerLeft: () => (
+  //       <Button
+  //         onPress={() => {
+  //           socket.disconnect(); // Disconnect the player from the lobby
+  //           navigation.navigate("Home"); // Navigate to the Home screen
+  //         }}
+  //         title="<- Back to home"
+  //         color="#000"
+  //       />
+  //     ),
+  //   });
+  // }, [navigation, socket]);
 
   return (
     <View style={styles.container}>

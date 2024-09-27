@@ -68,6 +68,13 @@ io.on("connection", (socket) => {
   console.log("New client connected: " + socket.id);
 
   socket.on("createGame", ({ creatorName, numberOfPlayers }) => {
+    const rooms = Array.from(socket.rooms);
+    rooms.forEach((room) => {
+      if (room !== socket.id) {
+        socket.leave(room);
+      }
+    });
+
     const gameId = generateRandomString();
     games[gameId] = {
       gameId,
@@ -84,6 +91,8 @@ io.on("connection", (socket) => {
     };
 
     socket.join(gameId);
+    console.log("Socket rooms: ");
+    console.log(socket.rooms);
     socket.gameId = gameId;
     console.log(`${creatorName} created game: ${gameId}`);
     io.to(gameId).emit("gameCreated", games[gameId]); // Broadcasting to the room
@@ -226,7 +235,6 @@ io.on("connection", (socket) => {
     if (!data.isSkipped) {
       games[data.gameId].roundNum++;
     }
-    // const lead = shuffleAndPickLeader(games[data.gameId].players);
     games[data.gameId].roundLeader =
       games[data.gameId].players[
         ++games[data.gameId].leaderIndex % games[data.gameId].players.length

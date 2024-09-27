@@ -20,7 +20,10 @@ const App = () => {
   return (
     <SocketProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{ gestureEnabled: false }}
+        >
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="CreateGame" component={CreateGameScreen} />
           <Stack.Screen name="JoinGame" component={JoinGameScreen} />

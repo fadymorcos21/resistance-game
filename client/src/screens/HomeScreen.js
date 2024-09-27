@@ -1,28 +1,35 @@
 // client/src/screens/HomeScreen.js
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useContext, useCallback } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import { SocketContext } from "../SocketContext"; // Import SocketContext
+import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 
 const HomeScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const socket = useContext(SocketContext); // Get the socket from context
 
-  useEffect(() => {
-    if (!socket) return; // Ensure socket is initialized
+  useFocusEffect(
+    useCallback(() => {
+      if (!socket) return; // Ensure socket is initialized
+      // if (!socket.connected) {
+      //   socket.connect(); // Reconnect socket if not connected
+      // }
+      const handleGameCreated = (data) => {
+        console.log(`Game created successfully with ID: ${data.gameId}`);
+        navigation.navigate("GameLobby", {
+          gameId: data.gameId,
+          name: data.gameLeader.name,
+        });
+      };
 
-    socket.on("gameCreated", (data) => {
-      console.log(`Game created successfully with ID: ${data.gameId}`);
-      navigation.navigate("GameLobby", {
-        gameId: data.gameId,
-        name: data.gameLeader.name,
-      });
-    });
+      socket.on("gameCreated", handleGameCreated);
 
-    // Clean up the effect
-    return () => {
-      socket.off("gameCreated");
-    };
-  }, [socket, navigation]); // Re-run the effect if socket or navigation changes
+      // Clean up the effect when leaving the screen
+      return () => {
+        socket.off("gameCreated", handleGameCreated);
+      };
+    }, [socket, navigation]) // Re-run the effect if socket or navigation changes
+  );
 
   const createGame = () => {
     if (name.length < 1 || name.length > 15) {
@@ -53,7 +60,6 @@ const HomeScreen = ({ navigation }) => {
           if (name.length < 1 || name.length > 15) {
             alert("Username must be at least 1 character and less than 15");
           } else {
-            console.log("Joining a game...");
             navigation.navigate("JoinGame", { name });
           }
         }}
