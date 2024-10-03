@@ -259,54 +259,52 @@ const GameScreen = ({ route, navigation }) => {
         <Text style={styles.header}>Mission {missionNumber}</Text>
       )}
       {leader && <Text>Leader: {leader.name}</Text>}
-        {missionNumber &&
-          gameDetails &&
-          Array.from({
-            length:
-              missionTeamRequirements[gameDetails.numberOfPlayers][
-                missionNumber - 1
-              ],
-          }).map((_, index) => {
-            const items = gameDetails.players.map((player) => ({
-              label: player.name,
-              value: player.socketId,
-            }));
+      {missionNumber &&
+        gameDetails &&
+        Array.from({
+          length:
+            missionTeamRequirements[gameDetails.numberOfPlayers][
+              missionNumber - 1
+            ],
+        }).map((_, index) => {
+          const items = gameDetails.players.map((player) => ({
+            label: player.name,
+            value: player.socketId,
+          }));
 
-            return !finalized && socket.id === leader?.socketId ? (
-              <View
-                key={index}
-                style={{ zIndex: 1000 - index, marginBottom: 40 }}
-              >
-                <DropDownPicker
-                  open={openDropdown[index]} // Controls whether the dropdown is open
-                  value={
+          return !finalized && socket.id === leader?.socketId ? (
+            <View
+              key={index}
+              style={{ zIndex: 1000 - index, marginBottom: 40 }}
+            >
+              <DropDownPicker
+                open={openDropdown[index]} // Controls whether the dropdown is open
+                value={missionCrew[index] ? missionCrew[index].socketId : null} // Reflect the current selection from missionCrew
+                items={items} // List of selectable options
+                setOpen={(open) => {
+                  setOpenDropdown((prev) =>
+                    prev.map((o, i) => (i === index ? open : o))
+                  );
+                }}
+                setValue={(callback) => {
+                  const selectedValue = callback(
                     missionCrew[index] ? missionCrew[index].socketId : null
-                  } // Reflect the current selection from missionCrew
-                  items={items} // List of selectable options
-                  setOpen={(open) => {
-                    setOpenDropdown((prev) =>
-                      prev.map((o, i) => (i === index ? open : o))
-                    );
-                  }}
-                  setValue={(callback) => {
-                    const selectedValue = callback(
-                      missionCrew[index] ? missionCrew[index].socketId : null
-                    );
-                    handlePlayerSelection(selectedValue, index);
-                  }}
-                  zIndex={1000 - index}
-                  dropDownDirection="BOTTOM"
-                  avoidScrollView={true}
-                />
-              </View>
-            ) : (
-              <Text key={index} style={styles.text}>
-                {missionCrew[index]
-                  ? missionCrew[index].name
-                  : "No selection yet"}
-              </Text>
-            );
-          })}
+                  );
+                  handlePlayerSelection(selectedValue, index);
+                }}
+                zIndex={1000 - index}
+                dropDownDirection="BOTTOM"
+                avoidScrollView={true}
+              />
+            </View>
+          ) : (
+            <Text key={index} style={styles.text}>
+              {missionCrew[index]
+                ? missionCrew[index].name
+                : "No selection yet"}
+            </Text>
+          );
+        })}
       {socket.id === leader?.socketId ? (
         !finalized ? (
           <Button
