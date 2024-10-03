@@ -259,7 +259,6 @@ const GameScreen = ({ route, navigation }) => {
         <Text style={styles.header}>Mission {missionNumber}</Text>
       )}
       {leader && <Text>Leader: {leader.name}</Text>}
-      <ScrollView style={styles.selectionArea}>
         {missionNumber &&
           gameDetails &&
           Array.from({
@@ -308,7 +307,6 @@ const GameScreen = ({ route, navigation }) => {
               </Text>
             );
           })}
-      </ScrollView>
       {socket.id === leader?.socketId ? (
         !finalized ? (
           <Button

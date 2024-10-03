@@ -2,17 +2,17 @@
 import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import HomeScreen from "./screens/HomeScreen";
-import CreateGameScreen from "./screens/CreateGameScreen";
-import JoinGameScreen from "./screens/JoinGameScreen";
-import GameLobbyScreen from "./screens/GameLobbyScreen";
-import RevealScreen from "./screens/RevealScreen";
-import GameScreen from "./screens/GameScreen";
-import RoundEndScreen from "./screens/RoundEndScreen";
-import GameOverScreen from "./screens/GameOverScreen";
-import MissionScreen from "./screens/MissionScreen";
-import RetryScreen from "./screens/RetryScreen";
-import { SocketProvider } from "./SocketContext"; // Import the context provider
+import HomeScreen from "./src/screens/HomeScreen";
+import CreateGameScreen from "./src/screens/CreateGameScreen";
+import JoinGameScreen from "./src/screens/JoinGameScreen";
+import GameLobbyScreen from "./src/screens/GameLobbyScreen";
+import RevealScreen from "./src/screens/RevealScreen";
+import GameScreen from "./src/screens/GameScreen";
+import RoundEndScreen from "./src/screens/RoundEndScreen";
+import GameOverScreen from "./src/screens/GameOverScreen";
+import MissionScreen from "./src/screens/MissionScreen";
+import RetryScreen from "./src/screens/RetryScreen";
+import { SocketProvider } from "./src/SocketContext"; // Import the context provider
 
 const Stack = createNativeStackNavigator();
 

@@ -8,7 +8,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://34.124.121.161:3000"); // Replace with your server URL
+    const newSocket = io("http://34.130.37.9:3000"); // Replace with your server URL
     setSocket(newSocket);
 
     // Handle connect and disconnect events
