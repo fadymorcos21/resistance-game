@@ -8,7 +8,8 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://34.130.37.9:3000"); // Replace with your server URL
+    const newSocket = io("https://reistanceareus.store");  // New domain with HTTPS
+
     setSocket(newSocket);
 
     // Handle connect and disconnect events
