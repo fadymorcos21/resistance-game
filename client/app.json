@@ -23,6 +23,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "extra": {
+      "eas": {
+        "projectId": "082b24e2-b4d5-45bc-bc9b-436aade5a456"
+      }
     }
   }
 }

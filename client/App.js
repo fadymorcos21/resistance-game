@@ -13,6 +13,16 @@ import GameOverScreen from "./src/screens/GameOverScreen";
 import MissionScreen from "./src/screens/MissionScreen";
 import RetryScreen from "./src/screens/RetryScreen";
 import { SocketProvider } from "./src/SocketContext"; // Import the context provider
+import * as Sentry from "@sentry/react-native";
+import { AppLoading } from "expo";
+
+Sentry.init({
+  dsn: "https://fca2b43110c8ac9d07da57d993efe2ed@o4508060621209600.ingest.us.sentry.io/4508060623568896", // Replace with your actual DSN from Sentry
+  enableInExpoDevelopment: true,
+  debug: true,
+});
+
+Sentry.captureMessage("Sentry is set up correctly!");
 
 const Stack = createNativeStackNavigator();
 
