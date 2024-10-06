@@ -8,7 +8,7 @@ export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000"); // New domain with HTTPS
+    const newSocket = io("https://resistnce-game-srver-app.store"); // New domain with HTTPS
 
     setSocket(newSocket);
 
