@@ -53,20 +53,21 @@ const GameLobbyScreen = ({ route, navigation }) => {
     };
   }, [gameId, name, navigation, socket]);
 
-  // React.useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     headerLeft: () => (
-  //       <Button
-  //         onPress={() => {
-  //           socket.disconnect(); // Disconnect the player from the lobby
-  //           navigation.navigate("Home"); // Navigate to the Home screen
-  //         }}
-  //         title="<- Back to home"
-  //         color="#000"
-  //       />
-  //     ),
-  //   });
-  // }, [navigation, socket]);
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerLeft: () => (
+        <Button
+          onPress={() => {
+            // socket.disconnect(); // Disconnect the player from the lobby
+            socket.emit("playerLeftLobby", { gameId });
+            navigation.navigate("Home"); // Navigate to the Home screen
+          }}
+          title="<- Back to home"
+          color="#000"
+        />
+      ),
+    });
+  }, [navigation, socket]);
 
   return (
     <View style={styles.container}>

@@ -11,9 +11,7 @@ const HomeScreen = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       if (!socket) return; // Ensure socket is initialized
-      // if (!socket.connected) {
-      //   socket.connect(); // Reconnect socket if not connected
-      // }
+
       const handleGameCreated = (data) => {
         console.log(`Game created successfully with ID: ${data.gameId}`);
         navigation.navigate("GameLobby", {

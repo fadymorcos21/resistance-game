@@ -299,6 +299,30 @@ io.on("connection", (socket) => {
     };
   });
 
+  socket.on("playerLeftLobby", () => {
+    console.log("Player left lobby", socket.id);
+    if (socket.gameId && games[socket.gameId]) {
+      const game = games[socket.gameId];
+      const playerIndex = game.players.findIndex(
+        (p) => p.socketId === socket.id
+      );
+      if (playerIndex !== -1) {
+        if (socket.id === game.gameLeader.socketId) {
+          const newGameLeader =
+            game.players[(playerIndex + 1) % game.players.length];
+          game.gameLeader = {
+            name: newGameLeader.name,
+            socketId: newGameLeader.socketId,
+          };
+        }
+        const playerName = game.players[playerIndex].name;
+        game.players.splice(playerIndex, 1);
+        console.log(`${playerName} left the game: ${socket.gameId}`);
+        io.to(socket.gameId).emit("playerLeft", games[socket.gameId]);
+      }
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("Client disconnected", socket.id);
     if (socket.gameId && games[socket.gameId]) {
