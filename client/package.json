@@ -19,6 +19,7 @@
     "@types/react": "~18.2.79",
     "cors": "^2.8.5",
     "expo": "~51.0.24",
+    "expo-router": "^3.5.23",
     "expo-status-bar": "~1.12.1",
     "promise": "^8.3.0",
     "react": "^18.2.0",

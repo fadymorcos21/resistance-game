@@ -39,8 +39,7 @@ const JoinGameScreen = ({ route, navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Resistance</Text>
-      <Text style={styles.subtitle}>(The App)</Text>
-      <Text style={styles.auther}>By Fady</Text>
+      <Text style={styles.subtitle}>The Game</Text>
       <TextInput
         style={styles.input}
         placeholder="Game PIN"
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 24,
-    marginBottom: 20,
+    marginBottom: 45,
   },
   auther: {
     fontSize: 15,

@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 24,
-    marginBottom: 55,
+    marginBottom: 45,
   },
   auther: {
     fontSize: 15,
