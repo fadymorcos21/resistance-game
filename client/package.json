@@ -2,6 +2,8 @@
   "name": "resistance",
   "version": "1.0.0",
   "main": "expo/AppEntry.js",
+  "homepage": "https://fadymorcos21.github.io/resistance-game",
+
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
