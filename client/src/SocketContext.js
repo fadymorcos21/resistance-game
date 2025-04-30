@@ -1,6 +1,9 @@
 // client/src/SocketContext.js
 import React, { createContext, useEffect, useState } from "react";
 import io from "socket.io-client";
+import Constants from "expo-constants";
+
+const socketUrl = Constants.expoConfig.extra.SOCKET_SERVER;
 
 export const SocketContext = createContext();
 
@@ -9,7 +12,7 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // const newSocket = io("https://resistnce-game-srver-app.store"); // New domain with HTTPS
-    const newSocket = io("http://localhost:3000"); // New domain with HTTPS
+    const newSocket = io(socketUrl); // New domain with HTTPS
 
     setSocket(newSocket);
 
