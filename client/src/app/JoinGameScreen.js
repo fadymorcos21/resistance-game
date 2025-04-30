@@ -50,7 +50,9 @@ const JoinGameScreen = ({ route, navigation }) => {
           console.log("GAME PIN: " + e);
         }}
       />
-      <Button title="Join Game" onPress={() => joinGame()} />
+      <View style={styles.buttonWrapper}>
+        <Button title="Join Game" onPress={() => joinGame()} />
+      </View>
     </View>
   );
 };
@@ -77,6 +79,8 @@ const styles = StyleSheet.create({
   },
   input: {
     width: "100%",
+    maxWidth: 500, // <-- cap width
+
     marginBottom: 20,
     padding: 10,
     borderWidth: 1,
@@ -88,6 +92,23 @@ const styles = StyleSheet.create({
   codeHighlightContainer: {
     borderRadius: 3,
     paddingHorizontal: 4,
+  },
+
+  buttonWrapper: {
+    width: "100%",
+    maxWidth: 500, // <-- cap width
+    alignSelf: "center", // <-- center on large screens
+    marginBottom: 10,
+  },
+
+  instructionsBox: {
+    width: "100%",
+    maxWidth: 500, // <-- cap width
+    alignSelf: "center", // <-- center on large screens
+    backgroundColor: "#f5f9ff",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
   },
 });
 

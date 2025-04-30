@@ -20,10 +20,10 @@ const RevealScreen = ({ route, navigation }) => {
         setSpies(spies);
         setLoading(false);
       }, 3000); // Delay for 3 seconds to build suspense
-      // Wait additional 4 seconds after reveal to build suspense
+      // Wait additional 4 seconds after reveal to show users what they are
       setTimeout(() => {
         navigation.navigate("Game", { gameId, name }); // Pass necessary parameters
-      }, 4500);
+      }, 10500);
     });
 
     return () => {
