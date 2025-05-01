@@ -32,8 +32,8 @@ Play as Resistance operatives or hidden spies, complete missions, and outwit you
 
 - Node.js v20  
 - npm
-- Expo CLI
 - Git  
+- Expo CLI (`npm install -g expo-cli`)
 
 ### Installation
 
