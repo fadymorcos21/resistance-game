@@ -104,7 +104,7 @@ Play as Resistance operatives or hidden spies, complete missions, and outwit you
   Deployed on a Raspberry Pi 5 using PM2 and Nginx as a reverse proxy with an SSL certificate.
 
 - **Domain**:  
-  Configured via Namecheap (or equivalent DNS) and pointed to the Pi's public IP.
+  Configured via Namecheap and pointed to the Pi's public IP.
 
 
 ---
