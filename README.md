@@ -15,7 +15,7 @@ Play as Resistance operatives or hidden spies, complete missions, and outwit you
 ## 🛠 Technologies Used
 
 - **Backend**: Node.js (v20), Express, Socket.IO  
-- **Frontend**: React Native (Expo for Web)  
+- **Frontend**: React Native (Expo)  
 - **Real-Time**: WebSockets via Socket.IO  
 - **Hosting**:  
   - Frontend on Netlify  
