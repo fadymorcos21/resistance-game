@@ -88,17 +88,19 @@ Play as Resistance operatives or hidden spies, complete missions, and outwit you
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="docs/screenshots/img1.jpg" alt="Lobby Screen" width="250" />
+  <img src="docs/screenshots/img1.jpg" alt="img1" width="250" />
+  <img src="docs/screenshots/img2.jpg" alt="img2" width="250" />
+  <img src="docs/screenshots/img6.jpg" alt="img6" width="250" />
   
 
 </p>
 <p align="center">
-  <img src="docs/screenshots/img1.jpg" alt="Lobby Screen" width="250" />
+  <img src="docs/screenshots/img4.jpg" alt="Lobby Screen" width="500" />
   
 
 </p>
 <p align="center">
-  <img src="docs/screenshots/img1.jpg" alt="Lobby Screen" width="250" />
+  <img src="docs/screenshots/img5.jpg" alt="Lobby Screen" width="500" />
   
 
 </p>
