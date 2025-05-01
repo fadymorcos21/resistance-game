@@ -31,7 +31,8 @@ Play as Resistance operatives or hidden spies, complete missions, and outwit you
 ### Prerequisites
 
 - Node.js v20  
-- npm (or Yarn)  
+- npm
+- Expo CLI
 - Git  
 
 ### Installation
