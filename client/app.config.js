@@ -6,7 +6,7 @@ export default {
     slug: "resistance",
     version: "1.0.0",
     extra: {
-      SOCKET_SERVER: "https://resistnce-game-srver-app.store",
+      SOCKET_SERVER: "http://localhost:3000",
     },
   },
 };
